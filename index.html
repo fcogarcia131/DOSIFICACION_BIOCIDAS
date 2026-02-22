@@ -28,10 +28,10 @@
         <h2>Calculadora de Dosis</h2>
         <button onclick="ver('agua')">Biocidas (PPM)</button>
         <button class="btn-ins" onclick="ver('ins')">Insecticidas (%)</button>
-        <button class="btn-vec" onclick="ver('vec')">Vectobac 12AS (Dual)</button>
+        <button class="btn-vec">Vectobac 12AS (Dual)</button>
     </div>
 
-    <div id="sec-vec" style="display:none;">
+    <div id="sec-vec">
         <h2>Vectobac 12AS</h2>
         <label>Tipo de Aplicación:</label>
         <select id="v_tipo" onchange="toggleVectobac()">
@@ -62,23 +62,7 @@
             <option value="850">Vegetación densa / Carga orgánica alta</option>
         </select>
 
-        <button class="btn-vec" onclick="calcVec()">Calcular Dosis y Caldo</button>
-        <button class="btn-volver" onclick="irMenu()">Volver</button>
-    </div>
-
-    <div id="sec-agua" style="display:none;">
-        <h2>Biocidas (PPM)</h2>
-        <label>Dosis (ppm):</label> <input type="number" id="agua_dosis">
-        <label>Volumen (L):</label> <input type="number" id="agua_vol">
-        <button onclick="calcAgua()">Calcular</button>
-        <button class="btn-volver" onclick="irMenu()">Volver</button>
-    </div>
-    <div id="sec-ins" style="display:none;">
-        <h2>Insecticidas (%)</h2>
-        <label>Conc. envase (%):</label> <input type="number" id="ins_conc">
-        <label>Dosis deseada (%):</label> <input type="number" id="ins_dosis">
-        <label>Volumen caldo (L):</label> <input type="number" id="ins_vol">
-        <button class="btn-ins" onclick="calcIns()">Calcular</button>
+        <button class="btn-vec" onclick="calcVec()">Calcular Dosis y Rendimiento</button>
         <button class="btn-volver" onclick="irMenu()">Volver</button>
     </div>
 
@@ -86,15 +70,19 @@
 </div>
 
 <script>
+    const VOL_MOCHILA_ML = 5000;
+    const CAUDAL_SEG = 10; // ml/seg
+    const TIEMPO_PULV = 3;  // segundos
+    const GASTO_IMB = CAUDAL_SEG * TIEMPO_PULV; // 30 ml
+
     function ver(id) {
         document.getElementById('menu').style.display = 'none';
-        document.querySelectorAll('[id^="sec-"]').forEach(s => s.style.display = 'none');
-        document.getElementById('sec-' + id).style.display = 'block';
+        document.getElementById('sec-vec').style.display = id === 'vec' ? 'block' : 'none';
     }
 
     function irMenu() {
         document.getElementById('menu').style.display = 'block';
-        document.querySelectorAll('[id^="sec-"]').forEach(s => s.style.display = 'none');
+        document.getElementById('sec-vec').style.display = 'none';
         document.getElementById('resultado').style.display = 'none';
     }
 
@@ -113,49 +101,34 @@
         resDiv.style.display = "block";
 
         if (tipo === 'imbornales') {
-            // Producto puro por imbornal de 0.5m2
             let btiPorImb = (dosisLHa / 10) * 0.5;
-            // Mezcla para mochila de 5L (5000ml)
-            let mlMochila = 5000 * (btiPorImb / 30);
-            // Rendimiento: 5000ml mochila / 30ml gasto por imbornal
-            let numImbornales = Math.floor(5000 / 30);
+            let mlBtiMochila = VOL_MOCHILA_ML * (btiPorImb / GASTO_IMB);
+            let totalImbornales = Math.floor(VOL_MOCHILA_ML / GASTO_IMB);
 
-            let op = `1. BTI/m²: ${dosisLHa}L/ha / 10 = ${dosisLHa/10} ml<br>` +
-                     `2. BTI/imbornal (0.5m²): ${(dosisLHa/10)*0.5} ml<br>` +
-                     `3. BTI en Mochila 5L: 5000 * (${btiPorImb.toFixed(3)} / 30ml)<br>` +
-                     `4. Rendimiento: 5000ml / 30ml por imbornal`;
+            let op = `• Gasto imbornal: ${CAUDAL_SEG}ml/s * ${TIEMPO_PULV}s = ${GASTO_IMB} ml<br>` +
+                     `• BTI/imbornal (0.5m²): ${(dosisLHa/10).toFixed(3)}ml * 0.5 = ${btiPorImb.toFixed(3)} ml<br>` +
+                     `• Mezcla 5L: 5000 * (${btiPorImb.toFixed(3)} / ${GASTO_IMB}) = ${mlBtiBtiMochila.toFixed(2)} ml<br>` +
+                     `• Rendimiento: 5000 / ${GASTO_IMB}`;
 
-            resDiv.innerHTML = `<strong>Dosis Técnica:</strong> ${dosisLHa.toFixed(2)} L/ha<hr>` +
-                               `<strong>Mezcla Mochila 5L:</strong><br>` +
-                               `• Vectobac 12AS: <b>${mlMochila.toFixed(2)} mL</b><br>` +
+            resDiv.innerHTML = `<strong>Dosis:</strong> ${dosisLHa.toFixed(2)} L/ha<hr>` +
+                               `<strong>Para Mochila Goizper IK 5L:</strong><br>` +
+                               `• Vectobac 12AS: <b>${mlBtiMochila.toFixed(2)} mL</b><br>` +
                                `• Agua hasta completar 5 litros<br><br>` +
-                               `<strong>Rendimiento:</strong><br>` +
-                               `• Podrás tratar <b>${numImbornales} imbornales</b> por mochila.` +
+                               `<strong>RENDIMIENTO:</strong><br>` +
+                               `• Podrás tratar <b>${totalImbornales} imbornales</b> por carga.` +
                                `<div class="operacion"><strong>Desglose:</strong><br>${op}</div>`;
         } else {
             const m2 = parseFloat(document.getElementById("v_m2").value);
             if (isNaN(m2)) return alert("Indique m²");
-            
             let btiTotalML = (dosisLHa * m2) / 10;
             let caldoTotalL = (volCaldoHa * m2) / 10000;
-            let aguaRepartoL = caldoTotalL - (btiTotalML / 1000);
-            
-            let op = `• Producto: (${dosisLHa} * ${m2}) / 10 = ${btiTotalML.toFixed(1)} ml<br>` +
-                     `• Caldo Total: (${volCaldoHa} * ${m2}) / 10.000 = ${caldoTotalL.toFixed(2)} L`;
             
             resDiv.innerHTML = `<strong>Superficie: ${m2} m²</strong><br>` +
-                               `• Dosis: ${dosisLHa.toFixed(2)} L/ha<hr>` +
                                `• Vectobac 12AS: <b>${btiTotalML.toFixed(1)} mL</b><br>` +
-                               `• Agua de reparto: <b>${aguaRepartoL.toFixed(2)} L</b><br>` +
-                               `• Caldo final: <b>${caldoTotalL.toFixed(2)} L</b>` +
-                               `<div class="operacion"><strong>Desglose:</strong><br>${op}</div>` +
-                               `<div class="criterio-box">📚 <strong>Criterio:</strong> Caldo de ${volCaldoHa} L/ha aplicado según condición del entorno.</div>`;
+                               `• Caldo total necesario: <b>${caldoTotalL.toFixed(2)} L</b>` +
+                               `<div class="criterio-box">📚 <strong>Criterio:</strong> Basado en ${volCaldoHa} L/ha.</div>`;
         }
     }
-
-    // Funciones básicas para que el código sea funcional
-    function calcAgua() { /* ... similar a los anteriores ... */ }
-    function calcIns() { /* ... similar a los anteriores ... */ }
 </script>
 </body>
 </html>
