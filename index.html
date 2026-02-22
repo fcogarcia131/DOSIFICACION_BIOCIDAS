@@ -2,59 +2,92 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Calculadora de Dosis de Biocidas</title>
-
 <style>
-body{
-    font-family: Arial, sans-serif;
-    background:#f4f6f8;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
-.container{
-    background:white;
-    padding:30px;
-    border-radius:12px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.1);
-    width:420px;
-}
-button{
-    width:100%;
-    padding:10px;
-    border:none;
-    border-radius:6px;
-    background:#007bff;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
-    margin-bottom:10px;
-}
-button:hover{ background:#0056b3; }
-.boton-volver{ background:#6c757d; }
-.boton-volver:hover{ background:#545b62; }
-label{ font-weight:bold; }
-select,input{
-    width:100%;
-    padding:8px;
-    margin-top:5px;
-    margin-bottom:15px;
-    border-radius:6px;
-    border:1px solid #ccc;
-}
-.resultado{
-    margin-top:20px;
-    padding:15px;
-    background:#e9f7ef;
-    border-radius:6px;
-    font-weight:bold;
-    text-align:center;
-}
-small{ font-weight:normal; }
+    /* Estilos para replicar la interfaz de la imagen */
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background-color: #f0f2f5; /* Fondo gris claro */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .container {
+        background: white;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05); /* Sombra suave */
+        width: 100%;
+        max-width: 450px;
+        text-align: center;
+    }
+
+    h2 {
+        color: #000;
+        margin-bottom: 30px;
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        background-color: #007bff; /* Azul de la imagen */
+        color: white;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-bottom: 12px;
+        transition: background 0.2s ease;
+    }
+
+    button:hover {
+        background-color: #0069d9;
+    }
+
+    .boton-volver {
+        background-color: #6c757d;
+        margin-top: 10px;
+    }
+
+    /* Estilos de formulario */
+    label {
+        display: block;
+        text-align: left;
+        font-weight: bold;
+        margin-top: 15px;
+        color: #444;
+    }
+
+    select, input {
+        width: 100%;
+        padding: 12px;
+        margin-top: 5px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        font-size: 15px;
+    }
+
+    .resultado {
+        margin-top: 25px;
+        padding: 20px;
+        background-color: #f8fff9;
+        border-left: 5px solid #28a745;
+        border-radius: 8px;
+        text-align: left;
+        color: #155724;
+    }
+
+    hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
 </style>
 </head>
-
 <body>
 
 <div class="container" id="menu">
@@ -67,175 +100,133 @@ small{ font-weight:normal; }
 <div class="container" id="contenido" style="display:none;"></div>
 
 <script>
+// Constantes técnicas según tus cálculos
+const VOL_MOCHILA = 5000;  // 5 Litros en ml
+const CAUDAL_SEG = 10;     // 10 ml/seg (600ml/min)
+const TIEMPO_IMB = 3;      // Segundos por imbornal
+const GASTO_IMB = CAUDAL_SEG * TIEMPO_IMB; // 30ml de caldo por imbornal
+const SUP_IMB = 0.5;       // m2 por imbornal
 
-function volverMenu(){
-    document.getElementById("contenido").style.display="none";
-    document.getElementById("menu").style.display="block";
+function volverMenu() {
+    document.getElementById("contenido").style.display = "none";
+    document.getElementById("menu").style.display = "block";
 }
 
-/* ======================
-   DESINFECCIÓN AGUA
-====================== */
-
-function cargarAgua(){
-    document.getElementById("menu").style.display="none";
-    document.getElementById("contenido").style.display="block";
-
-    document.getElementById("contenido").innerHTML =
-        '<h2>Desinfección de Agua</h2>' +
-        '<label>Concentración producto (ppm):</label>' +
-        '<input type="number" id="concentracion">' +
-        '<label>Concentración deseada (ppm):</label>' +
-        '<input type="number" id="dosis">' +
-        '<label>Volumen sistema (L):</label>' +
-        '<input type="number" id="volumen">' +
-        '<button onclick="calcularAgua()">Calcular</button>' +
-        '<button class="boton-volver" onclick="volverMenu()">Volver</button>' +
-        '<div id="resultado" class="resultado" style="display:none;"></div>';
+/* =========================================
+   VECTOBAC 12 AS (LÓGICA MEJORADA)
+   ========================================= */
+function cargarVectobac() {
+    document.getElementById("menu").style.display = "none";
+    const cont = document.getElementById("contenido");
+    cont.style.display = "block";
+    cont.innerHTML = `
+        <h2>Vectobac 12 AS</h2>
+        <label>Infestación:</label>
+        <select id="infest">
+            <option value="0.5">Baja (0.5 L/ha)</option>
+            <option value="1.5">Alta (1.5 L/ha)</option>
+        </select>
+        <label>¿Predominan L3-L4?</label>
+        <select id="larvas">
+            <option value="0">No</option>
+            <option value="0.5">Sí (+0.5 L/ha)</option>
+        </select>
+        <label>Carga Orgánica:</label>
+        <select id="organica">
+            <option value="0">Baja</option>
+            <option value="0.5">Alta / Sucia (+0.5 L/ha)</option>
+        </select>
+        <button onclick="calcVectobac()">Calcular para Imbornales</button>
+        <button class="boton-volver" onclick="volverMenu()">Volver</button>
+        <div id="res" class="resultado" style="display:none;"></div>
+    `;
 }
 
-function calcularAgua(){
-    var concentracion = parseFloat(document.getElementById("concentracion").value);
-    var dosis = parseFloat(document.getElementById("dosis").value);
-    var volumen = parseFloat(document.getElementById("volumen").value);
+function calcVectobac() {
+    // 1. Dosis L/ha
+    let dosisLHa = parseFloat(document.getElementById("infest").value) + 
+                   parseFloat(document.getElementById("larvas").value) + 
+                   parseFloat(document.getElementById("organica").value);
+    
+    // Límites etiqueta
+    dosisLHa = Math.min(Math.max(dosisLHa, 0.25), 2.5);
 
-    if(isNaN(concentracion)||isNaN(dosis)||isNaN(volumen)){
-        alert("Complete todos los campos");
-        return;
-    }
+    // 2. ml de producto puro para 0.5m2
+    // (Dosis L/ha / 10.000 m2) * 1000ml * 0.5m2 -> simplificado: (dosisLHa / 20)
+    let btiPorImb = (dosisLHa * 1000 / 10000) * SUP_IMB;
 
-    var litros = (dosis*volumen)/concentracion;
-    var ml = litros*1000;
+    // 3. Mezcla en mochila de 5L aplicando tu fórmula:
+    // 5000 * ( btiPorImb / Gasto_Liquido_Imb )
+    let mlEnMochila = VOL_MOCHILA * (btiPorImb / GASTO_IMB);
+    let totalImbornales = Math.floor(VOL_MOCHILA / GASTO_IMB);
 
-    var resultado=document.getElementById("resultado");
-    resultado.style.display="block";
-    resultado.innerHTML=
-        "Volumen a añadir:<br><br>"+
-        litros.toFixed(4)+" L<br>"+
-        ml.toFixed(2)+" mL";
+    const res = document.getElementById("res");
+    res.style.display = "block";
+    res.innerHTML = `
+        <strong>Resultados Técnicos:</strong><br>
+        Dosis: ${dosisLHa.toFixed(2)} L/ha<br>
+        BTI por imbornal: ${btiPorImb.toFixed(3)} ml<hr>
+        <strong>Para Mochila 5L:</strong><br>
+        Mezclar: <span style="font-size:1.2em; color:#007bff">${mlEnMochila.toFixed(1)} ml</span> de Vectobac.<br>
+        Autonomía: ${totalImbornales} imbornales.
+    `;
 }
 
-/* ======================
-   INSECTICIDAS
-====================== */
-
-function cargarInsecticidas(){
-    document.getElementById("menu").style.display="none";
-    document.getElementById("contenido").style.display="block";
-
-    document.getElementById("contenido").innerHTML =
-        '<h2>Insecticidas</h2>' +
-        '<label>Concentración garrafa (%):</label>' +
-        '<input type="number" id="concentracion">' +
-        '<label>Dosis deseada (%):</label>' +
-        '<input type="number" id="dosis">' +
-        '<label>Volumen caldo (L):</label>' +
-        '<input type="number" id="volumen">' +
-        '<button onclick="calcularInsecticida()">Calcular</button>' +
-        '<button class="boton-volver" onclick="volverMenu()">Volver</button>' +
-        '<div id="resultado" class="resultado" style="display:none;"></div>';
+/* =========================================
+   LEGIONELLA E INSECTICIDAS
+   ========================================= */
+function cargarAgua() {
+    document.getElementById("menu").style.display = "none";
+    const cont = document.getElementById("contenido");
+    cont.style.display = "block";
+    cont.innerHTML = `
+        <h2>Desinfección de Agua</h2>
+        <label>Conc. del producto (ppm o %):</label>
+        <input type="number" id="c_prod" placeholder="Ej: 15">
+        <label>Dosis deseada (ppm):</label>
+        <input type="number" id="d_des" placeholder="Ej: 5">
+        <label>Volumen Sistema (Litros):</label>
+        <input type="number" id="vol_s" placeholder="Ej: 1000">
+        <button onclick="calcAgua()">Calcular ml</button>
+        <button class="boton-volver" onclick="volverMenu()">Volver</button>
+        <div id="res" class="resultado" style="display:none;"></div>
+    `;
 }
 
-function calcularInsecticida(){
-    var concentracion=parseFloat(document.getElementById("concentracion").value);
-    var dosis=parseFloat(document.getElementById("dosis").value);
-    var volumen=parseFloat(document.getElementById("volumen").value);
-
-    if(isNaN(concentracion)||isNaN(dosis)||isNaN(volumen)){
-        alert("Complete todos los campos");
-        return;
-    }
-
-    var litros=(dosis*volumen)/concentracion;
-    var ml=litros*1000;
-
-    var resultado=document.getElementById("resultado");
-    resultado.style.display="block";
-    resultado.innerHTML=
-        "Volumen a añadir:<br><br>"+
-        litros.toFixed(4)+" L<br>"+
-        ml.toFixed(2)+" mL";
+function calcAgua() {
+    let c = parseFloat(document.getElementById("c_prod").value);
+    let d = parseFloat(document.getElementById("d_des").value);
+    let v = parseFloat(document.getElementById("vol_s").value);
+    let total = (d * v) / c;
+    const res = document.getElementById("res");
+    res.style.display = "block";
+    res.innerHTML = `Añadir: <strong>${total.toFixed(2)} ml</strong> al sistema.`;
 }
 
-/* ======================
-   VECTOBAC 12 AS
-====================== */
-
-function cargarVectobac(){
-    document.getElementById("menu").style.display="none";
-    document.getElementById("contenido").style.display="block";
-
-    document.getElementById("contenido").innerHTML =
-        '<h2>Vectobac 12 AS</h2>' +
-        '<label>Tipo tratamiento:</label>' +
-        '<select id="tipo" onchange="mostrarOpciones()">' +
-            '<option value="superficie">Grandes superficies</option>' +
-            '<option value="imbornales">Imbornales municipales</option>' +
-        '</select>' +
-        '<div id="zonaOpciones"></div>' +
-        '<button onclick="calcularVectobac()">Calcular</button>' +
-        '<button class="boton-volver" onclick="volverMenu()">Volver</button>' +
-        '<div id="resultado" class="resultado" style="display:none;"></div>';
-
-    mostrarOpciones();
+function cargarInsecticidas() {
+    document.getElementById("menu").style.display = "none";
+    const cont = document.getElementById("contenido");
+    cont.style.display = "block";
+    cont.innerHTML = `
+        <h2>Insecticidas</h2>
+        <label>Dosis deseada (%):</label>
+        <input type="number" id="per_d" placeholder="Ej: 1" step="0.1">
+        <label>Volumen de Caldo (L):</label>
+        <input type="number" id="vol_c" placeholder="Ej: 5">
+        <button onclick="calcIns()">Calcular ml</button>
+        <button class="boton-volver" onclick="volverMenu()">Volver</button>
+        <div id="res" class="resultado" style="display:none;"></div>
+    `;
 }
 
-function mostrarOpciones(){
-    var tipo=document.getElementById("tipo").value;
-
-    var html=
-        '<label>Nivel infestación:</label>'+
-        '<select id="nivel">'+
-            '<option value="baja">Baja</option>'+
-            '<option value="media">Media</option>'+
-            '<option value="alta">Alta</option>'+
-        '</select>'+
-        '<label>Alta carga orgánica:</label>'+
-        '<select id="organica">'+
-            '<option value="false">No</option>'+
-            '<option value="true">Sí</option>'+
-        '</select>';
-
-    if(tipo==="superficie"){
-        html+=
-            '<label>Superficie (m²):</label>'+
-            '<input type="number" id="superficie">';
-    }
-
-    document.getElementById("zonaOpciones").innerHTML=html;
+function calcIns() {
+    let p = parseFloat(document.getElementById("per_d").value);
+    let v = parseFloat(document.getElementById("vol_c").value);
+    let total = (p * v * 1000) / 100;
+    const res = document.getElementById("res");
+    res.style.display = "block";
+    res.innerHTML = `Añadir: <strong>${total.toFixed(1)} ml</strong> de insecticida.`;
 }
-
-function calcularVectobac(){
-    var tipo=document.getElementById("tipo").value;
-    var nivel=document.getElementById("nivel").value;
-    var organica=document.getElementById("organica").value==="true";
-
-    var rangos={baja:0.08,media:0.125,alta:0.175};
-    var dosis=rangos[nivel];
-
-    if(organica) dosis+=0.02;
-    if(dosis>0.25) dosis=0.25;
-
-    var resultado=document.getElementById("resultado");
-    resultado.style.display="block";
-
-    if(tipo==="superficie"){
-        var superficie=parseFloat(document.getElementById("superficie").value);
-        if(isNaN(superficie)){alert("Introduzca superficie");return;}
-        var producto=superficie*dosis;
-        resultado.innerHTML=
-            "Producto total: "+producto.toFixed(2)+" ml";
-    }else{
-        var productoPorImb=dosis*0.5;
-        var imbornales=10;
-        var productoTotal=productoPorImb*imbornales;
-
-        resultado.innerHTML=
-            "Añadir a mochila 5L: "+productoTotal.toFixed(2)+" ml<br>"+
-            "Imbornales tratables: "+imbornales;
-    }
-}
-
 </script>
 
 </body>
