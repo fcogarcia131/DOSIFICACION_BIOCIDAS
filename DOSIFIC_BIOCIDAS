@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Calculadora Profesional de Biocidas</title>
+<style>
+body { font-family: Arial; margin: 40px; background:#f4f6f8; }
+h2 { margin-top: 0; }
+button {
+    padding:10px 15px;
+    margin:5px 0;
+    cursor:pointer;
+    border:none;
+    background:#2c3e50;
+    color:white;
+    border-radius:5px;
+}
+button:hover { background:#34495e; }
+input, select {
+    padding:6px;
+    margin:5px 0;
+    width:100%;
+}
+.card {
+    background:white;
+    padding:20px;
+    border-radius:8px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
+    max-width:500px;
+}
+.resultado {
+    margin-top:15px;
+    padding:10px;
+    background:#ecf0f1;
+    border-radius:5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+<h2>Calculadora Técnica</h2>
+
+<div id="menu">
+    <button onclick="cargarModulo('agua')">DESINFECCIÓN DE AGUA</button><br>
+    <button onclick="cargarModulo('insecticida')">DOSIFICACIÓN DE INSECTICIDAS</button><br>
+    <button onclick="cargarModulo('vectobac')">DOSIFICACIÓN VECTOBAC 12 AS</button>
+</div>
+
+<div id="contenido"></div>
+
+</div>
+
+<script>
+
+function volverMenu(){
+    document.getElementById("contenido").innerHTML = "";
+}
+
+function cargarModulo(tipo){
+
+let html = '<button onclick="volverMenu()">← Volver</button><br><br>';
+
+if(tipo === "agua"){
+html += `
+<h3>Desinfección de Agua (Legionella)</h3>
+Volumen agua (L):
+<input id="volumenAgua" type="number">
+
+Dosis producto (ppm):
+<input id="ppm" type="number">
+
+Concentración producto (%):
+<input id="concentracion" type="number">
+
+<button onclick="calcularAgua()">Calcular</button>
+<div class="resultado" id="resultadoAgua"></div>
+`;
+}
+
+if(tipo === "insecticida"){
+html += `
+<h3>Dosificación Insecticidas</h3>
+Superficie (m²):
+<input id="supInsect" type="number">
+
+Dosis (ml/m²):
+<input id="dosisInsect" type="number">
+
+<button onclick="calcularInsecticida()">Calcular</button>
+<div class="resultado" id="resultadoInsect"></div>
+`;
+}
+
+if(tipo === "vectobac"){
+html += `
+<h3>Dosificación Vectobac 12 AS</h3>
+
+Superficie (m²):
+<input id="supVectobac" type="number">
+
+Nivel infestación:
+<select id="nivelVectobac">
+<option value="baja">Baja</option>
+<option value="media">Media</option>
+<option value="alta">Alta</option>
+</select>
+
+Tipo foco:
+<select id="focoVectobac">
+<option value="300">Lámina limpia</option>
+<option value="600">Vegetación media</option>
+<option value="900">Vegetación densa</option>
+</select>
+
+¿Predominan L3-L4?
+<select id="l3l4">
+<option value="false">No</option>
+<option value="true">Sí</option>
+</select>
+
+¿Alta carga orgánica?
+<select id="organica">
+<option value="false">No</option>
+<option value="true">Sí</option>
+</select>
+
+<button onclick="calcularVectobac()">Calcular</button>
+<div class="resultado" id="resultadoVectobac"></div>
+`;
+}
+
+document.getElementById("contenido").innerHTML = html;
+}
+
+/* ================= AGUA ================= */
+
+function calcularAgua(){
+let volumen = parseFloat(document.getElementById("volumenAgua").value);
+let ppm = parseFloat(document.getElementById("ppm").value);
+let concentracion = parseFloat(document.getElementById("concentracion").value);
+
+let gramosNecesarios = (volumen * ppm) / 1000;
+let producto = gramosNecesarios / (concentracion/100);
+
+document.getElementById("resultadoAgua").innerHTML =
+`Producto necesario: ${producto.toFixed(2)} g`;
+}
+
+/* ================= INSECTICIDA ================= */
+
+function calcularInsecticida(){
+let superficie = parseFloat(document.getElementById("supInsect").value);
+let dosis = parseFloat(document.getElementById("dosisInsect").value);
+
+let producto = superficie * dosis;
+
+document.getElementById("resultadoInsect").innerHTML =
+`Producto necesario: ${producto.toFixed(2)} ml`;
+}
+
+/* ================= VECTOBAC ================= */
+
+function calcularVectobac(){
+
+let superficie = parseFloat(document.getElementById("supVectobac").value);
+let nivel = document.getElementById("nivelVectobac").value;
+let volumenHa = parseFloat(document.getElementById("focoVectobac").value);
+let l3l4 = document.getElementById("l3l4").value === "true";
+let organica = document.getElementById("organica").value === "true";
+
+let rango = {
+    baja:[0.06,0.10],
+    media:[0.10,0.15],
+    alta:[0.15,0.20]
+};
+
+let dosis = (rango[nivel][0] + rango[nivel][1]) / 2;
+
+if(l3l4) dosis += 0.02;
+if(organica) dosis += 0.02;
+
+if(dosis > 0.25) dosis = 0.25;
+
+let producto = superficie * dosis;
+
+let caldo = superficie * (volumenHa / 10000);
+
+let concentracion = producto / caldo;
+
+document.getElementById("resultadoVectobac").innerHTML = `
+Dosis aplicada: ${dosis.toFixed(3)} ml/m² <br>
+Producto total: ${producto.toFixed(2)} ml <br>
+Caldo necesario: ${caldo.toFixed(2)} L <br>
+Concentración: ${concentracion.toFixed(4)} ml/L
+`;
+}
+
+</script>
+
+</body>
+</html>
