@@ -200,39 +200,52 @@
             document.getElementById("resultado").style.display = "block";
         }
 
-        function calcularVectobac() {
-            let superficie = parseFloat(document.getElementById("supVectobac").value);
-            let nivel = document.getElementById("nivelVectobac").value;
-            let volumenHa = parseFloat(document.getElementById("focoVectobac").value);
-            let l3l4 = document.getElementById("l3l4").value === "true";
-            let organica = document.getElementById("organica").value === "true";
+      function calcularVectobac() {
 
-            let rango = {
-                baja: [0.06, 0.10],
-                media: [0.10, 0.15],
-                alta: [0.15, 0.20]
-            };
+    let superficie = parseFloat(document.getElementById("supVectobac").value);
+    let nivel = document.getElementById("nivelVectobac").value;
+    let volumenHa = parseFloat(document.getElementById("focoVectobac").value);
+    let l3l4 = document.getElementById("l3l4").value === "true";
+    let organica = document.getElementById("organica").value === "true";
 
-            let dosis = (rango[nivel][0] + rango[nivel][1]) / 2;
+    let rango = {
+        baja: [0.06, 0.10],
+        media: [0.10, 0.15],
+        alta: [0.15, 0.20]
+    };
 
-            if (l3l4) dosis += 0.02;
-            if (organica) dosis += 0.02;
+    let dosis = (rango[nivel][0] + rango[nivel][1]) / 2;
 
-            if (dosis > 0.25) dosis = 0.25;
+    if (l3l4) dosis += 0.02;
+    if (organica) dosis += 0.02;
+    if (dosis > 0.25) dosis = 0.25;
 
-            let producto = superficie * dosis;
-            let caldo = superficie * (volumenHa / 10000);
-            let concentracion = producto / caldo;
+    let producto = superficie * dosis;
+    let caldo = superficie * (volumenHa / 10000);
+    let concentracion = producto / caldo;
 
-            const resultado = document.getElementById("resultadoVectobac");
-            resultado.style.display = "block";
-            resultado.innerHTML = `
-                Dosis aplicada: ${dosis.toFixed(3)} ml/m² <br>
-                Producto total: ${producto.toFixed(2)} ml <br>
-                Caldo necesario: ${caldo.toFixed(2)} L <br>
-                Concentración: ${concentracion.toFixed(4)} ml/L
-            `;
-        }
-    </script>
-</body>
-</html>
+    const resultado = document.getElementById("resultadoVectobac");
+    resultado.style.display = "block";
+    resultado.innerHTML = `
+        <strong>RESULTADO DEL TRATAMIENTO</strong><br><br>
+        Dosis aplicada: ${dosis.toFixed(3)} ml/m² <br>
+        Producto total: ${producto.toFixed(2)} ml <br>
+        Caldo necesario: ${caldo.toFixed(2)} L <br>
+        Concentración final: ${concentracion.toFixed(4)} ml/L <br><br>
+
+        <hr>
+
+        <strong>Criterio técnico de volumen de caldo</strong><br><br>
+
+        Lámina limpia → 300 L/ha<br>
+        Vegetación media → 600 L/ha<br>
+        Vegetación densa / orgánica alta → 900 L/ha<br><br>
+
+        <small>
+        Volumen orientativo basado en práctica habitual de aplicación hidráulica terrestre 
+        en tratamientos larvicidas con Bacillus thuringiensis israelensis. 
+        La etiqueta establece dosis en L/ha de producto, no volumen de caldo.
+        El volumen de aplicación se ajusta para garantizar distribución homogénea.
+        </small>
+    `;
+}
