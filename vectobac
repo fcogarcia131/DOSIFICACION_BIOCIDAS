@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora Vectobac 12AS</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 500px;
+}
+
+h2 { text-align: center; color: #333; margin-bottom: 20px; }
+
+label { font-weight: bold; display: block; margin-top: 10px; }
+
+select, input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #17a2b8;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover { background-color: #117a8b; }
+
+.btn-volver { background-color: #007bff; }
+
+.resultado {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #e9f7ef;
+    border-radius: 6px;
+    border-left: 4px solid #28a745;
+}
+
+.operacion {
+    font-family: 'Courier New', monospace;
+    background: #e8f0fe;
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    color: #333;
+    margin-top: 10px;
+    border: 1px solid #d1d9e6;
+    line-height: 1.4;
+}
+
+.criterio-box {
+    margin-top: 15px;
+    padding: 12px;
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #856404;
+}
+
+hr { border: 0; border-top: 1px solid #c3e6cb; margin: 15px 0; }
+
+#div_superficie { display: none; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🦟 Vectobac 12AS</h2>
+
+<label>Tipo de Aplicación:</label>
+<select id="v_tipo" onchange="toggleVectobac()">
+    <option value="imbornales">Tratamiento de Imbornales (Mochila 5L)</option>
+    <option value="masas_agua">Tratamiento de Grandes Masas de Agua (m²)</option>
+</select>
+
+<div id="div_superficie">
+    <label>Superficie total (m²):</label>
+    <input type="number" id="v_m2" value="2000">
+</div>
+
+<label>Nivel de infestación:</label>
+<select id="v_inf">
+    <option value="0.5">Baja (0.5 L/ha)</option>
+    <option value="1.5" selected>Intermedia (1.5 L/ha)</option>
+    <option value="2.5">Alta (2.5 L/ha)</option>
+</select>
+
+<label>¿Larvas L3-L4?</label>
+<select id="v_lar">
+    <option value="0">No</option>
+    <option value="0.5">Sí (+0.5 L/ha)</option>
+</select>
+
+<label>Carga orgánica / Vegetación:</label>
+<select id="v_condicion">
+    <option value="300">Lámina limpia (300 L/ha)</option>
+    <option value="550" selected>Vegetación media (550 L/ha)</option>
+    <option value="850">Vegetación densa / Carga orgánica alta (850 L/ha)</option>
+</select>
+
+<button onclick="calcVec()">Calcular Dosis y Rendimiento</button>
+
+<a href="index.html">
+    <button class="btn-volver">
+        ⬅ Volver al Menú Principal
+    </button>
+</a>
+
+<div id="resultado" class="resultado" style="display:none;"></div>
+
+</div>
+
+<script>
+// Constantes para Vectobac
+const VOL_MOCHILA_ML = 5000;
+const CAUDAL_SEG = 10; // ml/seg
+const TIEMPO_PULV = 3;  // segundos
+const GASTO_IMB = CAUDAL_SEG * TIEMPO_PULV; // 30 ml por imbornal
+const SUPERFICIE_IMBORNAL = 0.5; // m² (estimación técnica estándar)
+
+function toggleVectobac() {
+    const tipo = document.getElementById('v_tipo').value;
+    document.getElementById('div_superficie').style.display = tipo === 'masas_agua' ? 'block' : 'none';
+}
+
+function calcVec() {
+    let dosisLHa = parseFloat(document.getElementById("v_inf").value) + parseFloat(document.getElementById("v_lar").value);
+    if(dosisLHa > 2.5) dosisLHa = 2.5; // Tope máximo
+
+    const volCaldoHa = parseFloat(document.getElementById("v_condicion").value);
+    const tipo = document.getElementById('v_tipo').value;
+    const resDiv = document.getElementById("resultado");
+    resDiv.style.display = "block";
+
+    if (tipo === 'imbornales') {
+        // Cálculos para imbornales
+        let btiPorM2 = dosisLHa / 10000; // L/m² → mL/m²
+        let btiPorImb = btiPorM2 * SUPERFICIE_IMBORNAL * 1000; // mL por imbornal
+        
+        let proporcion = btiPorImb / GASTO_IMB;
+        let mlBtiMochila = VOL_MOCHILA_ML * proporcion;
+        let totalImbornales = Math.floor(VOL_MOCHILA_ML / GASTO_IMB);
+
+        // Desglose con parámetros explícitos
+        let op = `• 📐 Superficie estimada/imbornal: <b>${SUPERFICIE_IMBORNAL} m²</b><br>` +
+                 `• 🚿 Caudal de boquilla: ${CAUDAL_SEG} ml/seg<br>` +
+                 `• ⏱️ Tiempo de aplicación: ${TIEMPO_PULV} segundos<br>` +
+                 `• 💧 Caldo/imbornal: ${CAUDAL_SEG} ml/s × ${TIEMPO_PULV} s = <b>${GASTO_IMB} ml</b><br>` +
+                 `• 🧪 Dosis base: ${dosisLHa.toFixed(2)} L/ha = ${(btiPorM2*1000).toFixed(4)} ml/m²<br>` +
+                 `• 🎯 BTI puro/imbornal: ${(btiPorM2*1000).toFixed(4)} ml/m² × ${SUPERFICIE_IMBORNAL} m² = <b>${btiPorImb.toFixed(3)} ml</b><br>` +
+                 `• 🔀 Proporción: ${btiPorImb.toFixed(3)} ml BTI / ${GASTO_IMB} ml caldo = ${proporcion.toFixed(4)}<br>` +
+                 `• 🎒 Vectobac en mochila: 5000 ml × ${proporcion.toFixed(4)} = <b>${mlBtiMochila.toFixed(2)} ml</b><br>` +
+                 `• 📦 Rendimiento: 5000 ml ÷ ${GASTO_IMB} ml = <b>${totalImbornales} imbornales/carga</b>`;
+
+        resDiv.innerHTML = `<strong>📊 Dosis calculada:</strong> ${dosisLHa.toFixed(2)} L/ha<hr>` +
+                           `<strong>🎒 Para Mochila Goizper IK 5L:</strong><br>` +
+                           `• Vectobac 12AS: <b>${mlBtiMochila.toFixed(2)} mL</b><br>` +
+                           `• Agua: completar hasta 5 litros<br><br>` +
+                           
+                           `<strong>✅ PARÁMETROS DE APLICACIÓN:</strong><br>` +
+                           `• 📐 <b>Superficie/imbornal: ${SUPERFICIE_IMBORNAL} m²</b> (estimación técnica)<br>` +
+                           `• ⏱️ <b>Tiempo de aplicación: ${TIEMPO_PULV} segundos</b><br>` +
+                           `• 💧 <b>Caldo aplicado: ${GASTO_IMB} mL/imbornal</b><br>` +
+                           `• 🎯 <b>Dosis BTI: ${btiPorImb.toFixed(2)} mL/imbornal</b><br>` +
+                           `• 📦 <b>Rendimiento: ${totalImbornales} imbornales por carga</b><br><br>` +
+                           
+                           `<div class="operacion"><strong>🔍 Desglose operativo:</strong><br>${op}</div>` +
+                           
+                           `<div class="criterio-box">⚠️ <strong>Notas técnicas:</strong><br>` +
+                           `• La superficie de 0.5 m² es una estimación estándar para imbornales tipo sumidero.<br>` +
+                           `• Ajuste el tiempo de aplicación si el imbornal tiene dimensiones significativamente diferentes.<br>` +
+                           `• Usar cronómetro para garantizar los ${TIEMPO_PULV} segundos por punto.</div>`;
+    } else {
+        // Cálculo para grandes masas de agua
+        const m2 = parseFloat(document.getElementById("v_m2").value);
+        if (isNaN(m2) || m2 <= 0) return alert("⚠️ Indique una superficie válida en m²");
+        
+        let btiTotalML = (dosisLHa * m2) / 10; // L/ha * m² / 10 = mL
+        let caldoTotalL = (volCaldoHa * m2) / 10000; // L/ha * m² / 10000 = L
+        let cargasNecesarias = Math.ceil(caldoTotalL / 5);
+        
+        resDiv.innerHTML = `<strong>📐 Superficie: ${m2.toLocaleString()} m²</strong><hr>` +
+                           `• Vectobac 12AS necesario: <b>${btiTotalML.toFixed(1)} mL</b><br>` +
+                           `• Caldo total a preparar: <b>${caldoTotalL.toFixed(2)} L</b><br>` +
+                           `• Cargas de mochila (5L): <b>${cargasNecesarias}</b>` +
+                           `<div class="criterio-box">📚 <strong>Criterio técnico:</strong><br>` +
+                           `Dosis: ${dosisLHa.toFixed(2)} L/ha | Caldo: ${volCaldoHa} L/ha</div>` +
+                           `<div class="operacion"><strong>🔍 Cálculos:</strong><br>` +
+                           `• BTI: (${dosisLHa} L/ha × ${m2} m²) ÷ 10 = ${btiTotalML.toFixed(1)} mL<br>` +
+                           `• Caldo: (${volCaldoHa} L/ha × ${m2} m²) ÷ 10.000 = ${caldoTotalL.toFixed(2)} L</div>`;
+    }
+}
+</script>
+
+</body>
+</html>
