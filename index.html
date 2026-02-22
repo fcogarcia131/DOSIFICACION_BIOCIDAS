@@ -1,137 +1,194 @@
-function cargarVectobac() {
-    document.getElementById("menu").style.display = "none";
-    document.getElementById("contenido").style.display = "block";
-    document.getElementById("contenido").innerHTML = `
-        <h2>Vectobac 12 AS</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Calculadora de Dosis de Biocidas</title>
 
-        <label>Tipo de tratamiento:</label>
-        <select id="tipoTratamiento" onchange="mostrarOpcionesVectobac()">
-            <option value="superficie">Grandes superficies</option>
-            <option value="imbornales">Imbornales municipales</option>
-        </select>
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f8;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+.container{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+    width:420px;
+}
+button{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:6px;
+    background:#007bff;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    margin-bottom:10px;
+}
+button:hover{ background:#0056b3; }
+.boton-volver{ background:#6c757d; }
+.boton-volver:hover{ background:#545b62; }
+label{ font-weight:bold; }
+select,input{
+    width:100%;
+    padding:8px;
+    margin-top:5px;
+    margin-bottom:15px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+.resultado{
+    margin-top:20px;
+    padding:15px;
+    background:#e9f7ef;
+    border-radius:6px;
+    font-weight:bold;
+    text-align:center;
+}
+small{ font-weight:normal; }
+</style>
+</head>
 
-        <div id="opcionesVectobac"></div>
+<body>
 
-        <button onclick="calcularVectobac()">Calcular</button>
-        <button class="boton-volver" onclick="volverMenu()">Volver</button>
-        <div id="resultado" class="resultado" style="display:none;"></div>
-    `;
+<div class="container" id="menu">
+    <h2>Calculadora de Dosis de Biocidas</h2>
+    <button onclick="cargarVectobac()">Dosificación Vectobac 12 AS</button>
+</div>
 
-    mostrarOpcionesVectobac();
+<div class="container" id="contenido" style="display:none;"></div>
+
+<script>
+
+function volverMenu(){
+    document.getElementById("contenido").style.display="none";
+    document.getElementById("menu").style.display="block";
 }
 
-function mostrarOpcionesVectobac() {
+function cargarVectobac(){
 
-    let tipo = document.getElementById("tipoTratamiento").value;
-    let html = `
-        <label>Nivel infestación:</label>
-        <select id="nivel">
-            <option value="baja">Baja</option>
-            <option value="media">Media</option>
-            <option value="alta">Alta</option>
-        </select>
+    document.getElementById("menu").style.display="none";
+    document.getElementById("contenido").style.display="block";
 
-        <label>¿Alta carga orgánica?</label>
-        <select id="organica">
-            <option value="false">No</option>
-            <option value="true">Sí</option>
-        </select>
-    `;
+    document.getElementById("contenido").innerHTML =
+        '<h2>Vectobac 12 AS</h2>' +
 
-    if (tipo === "superficie") {
-        html += `
-            <label>Superficie (m²):</label>
-            <input type="number" id="superficie">
+        '<label>Tipo tratamiento:</label>' +
+        '<select id="tipo" onchange="mostrarOpciones()">' +
+            '<option value="superficie">Grandes superficies</option>' +
+            '<option value="imbornales">Imbornales municipales</option>' +
+        '</select>' +
 
-            <label>Volumen aplicación (L/ha):</label>
-            <select id="volHa">
-                <option value="300">Lámina limpia (300 L/ha)</option>
-                <option value="600">Vegetación media (600 L/ha)</option>
-                <option value="900">Vegetación densa (900 L/ha)</option>
-            </select>
-        `;
+        '<div id="zonaOpciones"></div>' +
+
+        '<button onclick="calcularVectobac()">Calcular</button>' +
+        '<button class="boton-volver" onclick="volverMenu()">Volver</button>' +
+        '<div id="resultado" class="resultado" style="display:none;"></div>';
+
+    mostrarOpciones();
+}
+
+function mostrarOpciones(){
+
+    var tipo = document.getElementById("tipo").value;
+
+    var html =
+        '<label>Nivel infestación:</label>' +
+        '<select id="nivel">' +
+            '<option value="baja">Baja</option>' +
+            '<option value="media">Media</option>' +
+            '<option value="alta">Alta</option>' +
+        '</select>' +
+
+        '<label>Alta carga orgánica:</label>' +
+        '<select id="organica">' +
+            '<option value="false">No</option>' +
+            '<option value="true">Sí</option>' +
+        '</select>';
+
+    if(tipo === "superficie"){
+        html +=
+            '<label>Superficie (m²):</label>' +
+            '<input type="number" id="superficie">' +
+
+            '<label>Volumen aplicación (L/ha):</label>' +
+            '<select id="volHa">' +
+                '<option value="300">300 L/ha</option>' +
+                '<option value="600">600 L/ha</option>' +
+                '<option value="900">900 L/ha</option>' +
+            '</select>';
     }
 
-    document.getElementById("opcionesVectobac").innerHTML = html;
+    document.getElementById("zonaOpciones").innerHTML = html;
 }
 
-function calcularVectobac() {
+function calcularVectobac(){
 
-    const tipo = document.getElementById("tipoTratamiento").value;
-    const nivel = document.getElementById("nivel").value;
-    const organica = document.getElementById("organica").value === "true";
+    var tipo = document.getElementById("tipo").value;
+    var nivel = document.getElementById("nivel").value;
+    var organica = document.getElementById("organica").value === "true";
 
-    const rangos = {
-        baja: 0.08,
-        media: 0.125,
-        alta: 0.175
+    var rangos = {
+        baja:0.08,
+        media:0.125,
+        alta:0.175
     };
 
-    let dosis = rangos[nivel];
+    var dosis = rangos[nivel];
+    if(organica) dosis += 0.02;
+    if(dosis > 0.25) dosis = 0.25;
 
-    if (organica) dosis += 0.02;
-    if (dosis > 0.25) dosis = 0.25;
+    var resultado = document.getElementById("resultado");
+    resultado.style.display="block";
 
-    let resultado = document.getElementById("resultado");
-    resultado.style.display = "block";
+    if(tipo === "superficie"){
 
-    /* ===========================
-       GRANDES SUPERFICIES
-    ============================ */
-    if (tipo === "superficie") {
+        var superficie = parseFloat(document.getElementById("superficie").value);
+        var volHa = parseFloat(document.getElementById("volHa").value);
 
-        const superficie = parseFloat(document.getElementById("superficie").value);
-        const volHa = parseFloat(document.getElementById("volHa").value);
-
-        if (isNaN(superficie)) {
-            alert("Introduzca la superficie.");
+        if(isNaN(superficie)){
+            alert("Introduzca superficie");
             return;
         }
 
-        const producto = superficie * dosis;
-        const caldo = superficie * (volHa / 10000);
-        const concentracion = producto / caldo;
+        var producto = superficie * dosis;
+        var caldo = superficie * (volHa/10000);
+        var concentracion = producto / caldo;
 
-        resultado.innerHTML = `
-            <strong>GRANDES SUPERFICIES</strong><br><br>
-            Dosis aplicada: ${dosis.toFixed(3)} ml/m²<br>
-            Producto total: ${producto.toFixed(2)} ml<br>
-            Caldo necesario: ${caldo.toFixed(2)} L<br>
-            Concentración final: ${concentracion.toFixed(4)} ml/L
-        `;
-    }
+        resultado.innerHTML =
+            '<strong>GRANDES SUPERFICIES</strong><br><br>' +
+            'Dosis: ' + dosis.toFixed(3) + ' ml/m²<br>' +
+            'Producto total: ' + producto.toFixed(2) + ' ml<br>' +
+            'Caldo necesario: ' + caldo.toFixed(2) + ' L<br>' +
+            'Concentración: ' + concentracion.toFixed(4) + ' ml/L';
 
-    /* ===========================
-       IMBORNALES
-    ============================ */
-    else {
+    } else {
 
-        const superficieImbornal = 0.5; // m²
-        const mochila = 5; // L
-        const caldoPorImbornal = 0.5; // L asumido
+        var superficieImb = 0.5;
+        var mochila = 5;
+        var caldoPorImb = 0.5;
 
-        const productoPorImbornal = dosis * superficieImbornal;
+        var productoPorImb = dosis * superficieImb;
+        var imbornales = Math.floor(mochila / caldoPorImb);
+        var productoTotal = productoPorImb * imbornales;
 
-        const imbornalesTratables = Math.floor(mochila / caldoPorImbornal);
-
-        const productoTotal = productoPorImbornal * imbornalesTratables;
-
-        resultado.innerHTML = `
-            <strong>TRATAMIENTO EN IMBORNALES</strong><br><br>
-
-            Dosis aplicada según etiqueta: ${dosis.toFixed(3)} ml/m²<br>
-            Producto por imbornal: ${productoPorImbornal.toFixed(3)} ml<br><br>
-
-            Producto a añadir a mochila (5 L): 
-            <strong>${productoTotal.toFixed(2)} ml</strong><br><br>
-
-            Imbornales tratables con 5 L: 
-            <strong>${imbornalesTratables}</strong><br><br>
-
-            <small>
-            Cálculo basado en superficie estándar 0.5 m² por imbornal 
-            y aplicación aproximada de 0.5 L de caldo por unidad.
-            </small>
-        `;
+        resultado.innerHTML =
+            '<strong>IMBORNALES</strong><br><br>' +
+            'Dosis: ' + dosis.toFixed(3) + ' ml/m²<br>' +
+            'Producto por imbornal: ' + productoPorImb.toFixed(3) + ' ml<br><br>' +
+            'Añadir a mochila (5L): <strong>' + productoTotal.toFixed(2) + ' ml</strong><br><br>' +
+            'Imbornales tratables: <strong>' + imbornales + '</strong><br><br>' +
+            '<small>Superficie estándar 0.5 m² por imbornal</small>';
     }
 }
+
+</script>
+
+</body>
+</html>
