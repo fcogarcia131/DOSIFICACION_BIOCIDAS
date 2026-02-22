@@ -19,24 +19,65 @@
     .operacion { font-family: 'Courier New', monospace; background: #e8f0fe; padding: 12px; border-radius: 5px; font-size: 0.85rem; color: #333; margin-top: 10px; border: 1px solid #d1d9e6; line-height: 1.4; }
     .criterio-box { margin-top: 15px; padding: 12px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px; font-size: 0.8rem; color: #856404; }
     hr { border: 0; border-top: 1px solid #c3e6cb; margin: 15px 0; }
+    .section { display: none; }
+    .section.active { display: block; }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="menu">
+    <!-- MENÚ PRINCIPAL -->
+    <div id="menu" class="section active">
         <h2>Calculadora de Dosis</h2>
-        <button onclick="ver('agua')">Biocidas (PPM)</button>
-        <button class="btn-ins" onclick="ver('ins')">Insecticidas (%)</button>
-        <button class="btn-vec">Vectobac 12AS (Dual)</button>
+        <button onclick="verSeccion('agua')">DESINFECCIÓN DEL AGUA</button>
+        <button class="btn-ins" onclick="verSeccion('ins')">DOSIS INSECTICIDAS (%)</button>
+        <button class="btn-vec" onclick="verSeccion('vec')">DOSIS VECTOBAC 12 AS</button>
     </div>
 
-    <div id="sec-vec">
+    <!-- SECCIÓN: DESINFECCIÓN DEL AGUA -->
+    <div id="sec-agua" class="section">
+        <h2>Desinfección del Agua (PPM)</h2>
+        <label>Volumen de agua (litros):</label>
+        <input type="number" id="agua_vol" value="1000">
+        <label>Concentración deseada (PPM):</label>
+        <select id="agua_ppm">
+            <option value="1">1 PPM (Mantenimiento)</option>
+            <option value="3">3 PPM (Tratamiento)</option>
+            <option value="5">5 PPM (Choque)</option>
+        </select>
+        <label>Tipo de biocida:</label>
+        <select id="agua_tipo">
+            <option value="cloro">Cloro líquido (10%)</option>
+            <option value="hipoclorito">Hipoclorito de calcio (65%)</option>
+        </select>
+        <button onclick="calcAgua()">Calcular Dosis</button>
+        <button class="btn-volver" onclick="irMenu()">Volver</button>
+    </div>
+
+    <!-- SECCIÓN: INSECTICIDAS -->
+    <div id="sec-ins" class="section">
+        <h2>Dosis Insecticidas (%)</h2>
+        <label>Superficie a tratar (m²):</label>
+        <input type="number" id="ins_m2" value="100">
+        <label>Concentración deseada (%):</label>
+        <input type="number" id="ins_conc" value="0.5" step="0.1">
+        <label>Caudal de aplicación (L/ha):</label>
+        <select id="ins_caudal">
+            <option value="200">Bajo volumen (200 L/ha)</option>
+            <option value="400">Medio volumen (400 L/ha)</option>
+            <option value="600">Alto volumen (600 L/ha)</option>
+        </select>
+        <button class="btn-ins" onclick="calcIns()">Calcular Dosis</button>
+        <button class="btn-volver" onclick="irMenu()">Volver</button>
+    </div>
+
+    <!-- SECCIÓN: VECTOBAC 12AS -->
+    <div id="sec-vec" class="section">
         <h2>Vectobac 12AS</h2>
         <label>Tipo de Aplicación:</label>
         <select id="v_tipo" onchange="toggleVectobac()">
-            <option value="imbornales">Imbornales (Mochila 5L)</option>
-            <option value="superficie">Grandes Superficies (m²)</option>
+            <option value="imbornales">Tratamiento de Imbornales (Mochila 5L)</option>
+            <option value="masas_agua">Tratamiento de Grandes Masas de Agua (m²)</option>
         </select>
 
         <div id="div_superficie" style="display:none;">
@@ -47,7 +88,7 @@
         <label>Nivel de infestación:</label>
         <select id="v_inf">
             <option value="0.5">Baja (0.5 L/ha)</option>
-            <option value="1.5">Intermedia (1.5 L/ha)</option>
+            <option value="1.5" selected>Intermedia (1.5 L/ha)</option>
             <option value="2.5">Alta (2.5 L/ha)</option>
         </select>
         <label>¿Larvas L3-L4?</label>
@@ -57,43 +98,52 @@
         </select>
         <label>Carga orgánica / Vegetación:</label>
         <select id="v_condicion">
-            <option value="300">Lámina limpia</option>
-            <option value="550">Vegetación media</option>
-            <option value="850">Vegetación densa / Carga orgánica alta</option>
+            <option value="300">Lámina limpia (300 L/ha)</option>
+            <option value="550" selected>Vegetación media (550 L/ha)</option>
+            <option value="850">Vegetación densa / Carga orgánica alta (850 L/ha)</option>
         </select>
 
         <button class="btn-vec" onclick="calcVec()">Calcular Dosis y Rendimiento</button>
         <button class="btn-volver" onclick="irMenu()">Volver</button>
     </div>
 
+    <!-- RESULTADOS -->
     <div id="resultado" class="resultado" style="display:none;"></div>
 </div>
 
 <script>
+    // Constantes para Vectobac
     const VOL_MOCHILA_ML = 5000;
     const CAUDAL_SEG = 10; // ml/seg
     const TIEMPO_PULV = 3;  // segundos
-    const GASTO_IMB = CAUDAL_SEG * TIEMPO_PULV; // 30 ml
+    const GASTO_IMB = CAUDAL_SEG * TIEMPO_PULV; // 30 ml por imbornal
 
-    function ver(id) {
-        document.getElementById('menu').style.display = 'none';
-        document.getElementById('sec-vec').style.display = id === 'vec' ? 'block' : 'none';
+    // Navegación entre secciones
+    function verSeccion(id) {
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        document.getElementById('resultado').style.display = 'none';
+        
+        if (id === 'menu') {
+            document.getElementById('menu').classList.add('active');
+        } else {
+            document.getElementById('sec-' + id).classList.add('active');
+        }
     }
 
     function irMenu() {
-        document.getElementById('menu').style.display = 'block';
-        document.getElementById('sec-vec').style.display = 'none';
-        document.getElementById('resultado').style.display = 'none';
+        verSeccion('menu');
     }
 
+    // Toggle para Vectobac
     function toggleVectobac() {
         const tipo = document.getElementById('v_tipo').value;
-        document.getElementById('div_superficie').style.display = tipo === 'superficie' ? 'block' : 'none';
+        document.getElementById('div_superficie').style.display = tipo === 'masas_agua' ? 'block' : 'none';
     }
 
+    // Cálculo para Vectobac 12AS
     function calcVec() {
         let dosisLHa = parseFloat(document.getElementById("v_inf").value) + parseFloat(document.getElementById("v_lar").value);
-        if(dosisLHa > 2.5) dosisLHa = 2.5;
+        if(dosisLHa > 2.5) dosisLHa = 2.5; // Tope máximo
 
         const volCaldoHa = parseFloat(document.getElementById("v_condicion").value);
         const tipo = document.getElementById('v_tipo').value;
@@ -101,34 +151,104 @@
         resDiv.style.display = "block";
 
         if (tipo === 'imbornales') {
-            let btiPorImb = (dosisLHa / 10) * 0.5;
-            let mlBtiMochila = VOL_MOCHILA_ML * (btiPorImb / GASTO_IMB);
+            // Cálculo para imbornales
+            let btiPorM2 = dosisLHa / 10000; // L/m²
+            let btiPorImb = btiPorM2 * 0.5 * 1000; // mL por imbornal (0.5 m²)
+            
+            let proporcion = btiPorImb / GASTO_IMB;
+            let mlBtiMochila = VOL_MOCHILA_ML * proporcion;
             let totalImbornales = Math.floor(VOL_MOCHILA_ML / GASTO_IMB);
 
-            let op = `• Gasto imbornal: ${CAUDAL_SEG}ml/s * ${TIEMPO_PULV}s = ${GASTO_IMB} ml<br>` +
-                     `• BTI/imbornal (0.5m²): ${(dosisLHa/10).toFixed(3)}ml * 0.5 = ${btiPorImb.toFixed(3)} ml<br>` +
-                     `• Mezcla 5L: 5000 * (${btiPorImb.toFixed(3)} / ${GASTO_IMB}) = ${mlBtiBtiMochila.toFixed(2)} ml<br>` +
-                     `• Rendimiento: 5000 / ${GASTO_IMB}`;
+            let op = `• Gasto por imbornal: ${CAUDAL_SEG} ml/s × ${TIEMPO_PULV} s = ${GASTO_IMB} ml<br>` +
+                     `• Dosis base: ${dosisLHa.toFixed(2)} L/ha = ${(btiPorM2*1000).toFixed(4)} ml/m²<br>` +
+                     `• BTI/imbornal (0.5 m²): ${btiPorImb.toFixed(3)} ml<br>` +
+                     `• Proporción en mochila: ${btiPorImb.toFixed(3)} / ${GASTO_IMB} = ${proporcion.toFixed(4)}<br>` +
+                     `• Vectobac en 5L: 5000 ml × ${proporcion.toFixed(4)} = ${mlBtiMochila.toFixed(2)} ml<br>` +
+                     `• Rendimiento: 5000 ml / ${GASTO_IMB} ml = ${totalImbornales} imbornales`;
 
-            resDiv.innerHTML = `<strong>Dosis:</strong> ${dosisLHa.toFixed(2)} L/ha<hr>` +
-                               `<strong>Para Mochila Goizper IK 5L:</strong><br>` +
+            resDiv.innerHTML = `<strong>📊 Dosis calculada:</strong> ${dosisLHa.toFixed(2)} L/ha<hr>` +
+                               `<strong>🎒 Para Mochila Goizper IK 5L:</strong><br>` +
                                `• Vectobac 12AS: <b>${mlBtiMochila.toFixed(2)} mL</b><br>` +
-                               `• Agua hasta completar 5 litros<br><br>` +
-                               `<strong>RENDIMIENTO:</strong><br>` +
-                               `• Podrás tratar <b>${totalImbornales} imbornales</b> por carga.` +
-                               `<div class="operacion"><strong>Desglose:</strong><br>${op}</div>`;
+                               `• Agua: completar hasta 5 litros<br><br>` +
+                               `<strong>✅ RENDIMIENTO:</strong><br>` +
+                               `• Podrás tratar <b>${totalImbornales} imbornales</b> por carga.<br>` +
+                               `• Dosis aplicada: <b>${btiPorImb.toFixed(2)} mL/imbornal</b>` +
+                               `<div class="operacion"><strong>🔍 Desglose operativo:</strong><br>${op}</div>`;
         } else {
+            // Cálculo para grandes masas de agua
             const m2 = parseFloat(document.getElementById("v_m2").value);
-            if (isNaN(m2)) return alert("Indique m²");
-            let btiTotalML = (dosisLHa * m2) / 10;
-            let caldoTotalL = (volCaldoHa * m2) / 10000;
+            if (isNaN(m2) || m2 <= 0) return alert("⚠️ Indique una superficie válida en m²");
             
-            resDiv.innerHTML = `<strong>Superficie: ${m2} m²</strong><br>` +
-                               `• Vectobac 12AS: <b>${btiTotalML.toFixed(1)} mL</b><br>` +
-                               `• Caldo total necesario: <b>${caldoTotalL.toFixed(2)} L</b>` +
-                               `<div class="criterio-box">📚 <strong>Criterio:</strong> Basado en ${volCaldoHa} L/ha.</div>`;
+            let btiTotalML = (dosisLHa * m2) / 10; // L/ha * m² / 10 = mL
+            let caldoTotalL = (volCaldoHa * m2) / 10000; // L/ha * m² / 10000 = L
+            let cargasNecesarias = Math.ceil(caldoTotalL / 5);
+            
+            resDiv.innerHTML = `<strong>📐 Superficie: ${m2.toLocaleString()} m²</strong><br>` +
+                               `• Vectobac 12AS necesario: <b>${btiTotalML.toFixed(1)} mL</b><br>` +
+                               `• Caldo total a preparar: <b>${caldoTotalL.toFixed(2)} L</b><br>` +
+                               `• Cargas de mochila (5L): <b>${cargasNecesarias}</b>` +
+                               `<div class="criterio-box">📚 <strong>Criterio técnico:</strong><br>` +
+                               `Dosis: ${dosisLHa.toFixed(2)} L/ha | Caldo: ${volCaldoHa} L/ha</div>` +
+                               `<div class="operacion"><strong>🔍 Cálculos:</strong><br>` +
+                               `• BTI: (${dosisLHa} L/ha × ${m2} m²) ÷ 10 = ${btiTotalML.toFixed(1)} mL<br>` +
+                               `• Caldo: (${volCaldoHa} L/ha × ${m2} m²) ÷ 10.000 = ${caldoTotalL.toFixed(2)} L</div>`;
         }
     }
+
+    // Cálculo para DESINFECCIÓN DEL AGUA
+    function calcAgua() {
+        const vol = parseFloat(document.getElementById("agua_vol").value);
+        const ppm = parseFloat(document.getElementById("agua_ppm").value);
+        const tipo = document.getElementById("agua_tipo").value;
+        
+        if (isNaN(vol) || vol <= 0) return alert("⚠️ Indique un volumen válido");
+        
+        let productoML = 0, nombreProducto = "";
+        
+        if (tipo === "cloro") {
+            productoML = (ppm * vol) / 100; // Cloro líquido 10%
+            nombreProducto = "Cloro líquido (10%)";
+        } else {
+            productoML = (ppm * vol) / 650; // Hipoclorito de calcio 65%
+            nombreProducto = "Hipoclorito de calcio (65%)";
+        }
+        
+        const resDiv = document.getElementById("resultado");
+        resDiv.style.display = "block";
+        resDiv.innerHTML = `<strong>💧 Volumen: ${vol.toLocaleString()} L | Objetivo: ${ppm} PPM</strong><hr>` +
+                           `• Producto: <b>${nombreProducto}</b><br>` +
+                           `• Dosis necesaria: <b>${productoML.toFixed(2)} mL</b><br><br>` +
+                           `<div class="criterio-box">⚠️ <strong>Precaución:</strong> Añadir siempre el producto al agua, nunca al revés. Usar EPP.</div>`;
+    }
+
+    // Cálculo para INSECTICIDAS
+    function calcIns() {
+        const m2 = parseFloat(document.getElementById("ins_m2").value);
+        const conc = parseFloat(document.getElementById("ins_conc").value);
+        const caudal = parseFloat(document.getElementById("ins_caudal").value);
+        
+        if (isNaN(m2) || isNaN(conc) || isNaN(caudal)) return alert("⚠️ Complete todos los campos correctamente");
+        
+        const ha = m2 / 10000;
+        const caldoTotalL = caudal * ha;
+        const productoML = (caldoTotalL * 1000) * conc / 100;
+        
+        const resDiv = document.getElementById("resultado");
+        resDiv.style.display = "block";
+        resDiv.innerHTML = `<strong>🌿 Superficie: ${m2.toLocaleString()} m² | Concentración: ${conc}%</strong><hr>` +
+                           `• Caldo total: <b>${caldoTotalL.toFixed(2)} L</b><br>` +
+                           `• Insecticida puro: <b>${productoML.toFixed(1)} mL</b><br>` +
+                           `• Caudal aplicado: <b>${caudal} L/ha</b><br><br>` +
+                           `<div class="operacion"><strong>🔍 Cálculo:</strong><br>` +
+                           `• Ha: ${m2} m² ÷ 10.000 = ${ha.toFixed(4)} ha<br>` +
+                           `• Caldo: ${ha.toFixed(4)} ha × ${caudal} L/ha = ${caldoTotalL.toFixed(2)} L<br>` +
+                           `• Producto: ${caldoTotalL*1000} mL × ${conc}% = ${productoML.toFixed(1)} mL</div>`;
+    }
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleVectobac();
+    });
 </script>
 </body>
 </html>
