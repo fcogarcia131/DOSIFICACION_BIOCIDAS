@@ -237,28 +237,39 @@ function calcularVectobac(){
 
         if(isNaN(tiempo)||isNaN(caudal)){ alert("Complete todos los campos"); return; }
 
-        var superficieImb=0.5;
-        var btiImb=dosis*superficieImb;
+     var superficieImb = 0.5;
+var btiImb = dosis * superficieImb;
 
-        var mlSeg=caudal/60;
-        var volumenAplicado=mlSeg*tiempo;
+var mlSeg = caudal / 60;
+var volumenAplicado = mlSeg * tiempo;
 
-        var concentracion=btiImb/volumenAplicado;
-        var productoTotal=5000*concentracion;
+var concentracion = btiImb / volumenAplicado;
+var productoTotal = 5000 * concentracion;
 
-        r.innerHTML=
-        "<strong>Cálculo hidráulico:</strong><br>" +
-        "BTI por imbornal = Dosis × 0.5 m²<br>" +
-        dosis.toFixed(3)+" × 0.5 = "+btiImb.toFixed(4)+" ml<br><br>" +
-        "Volumen aplicado = (Caudal/60) × Tiempo<br>" +
-        "(" + caudal + "/60) × " + tiempo + " = " +
-        volumenAplicado.toFixed(2) + " ml<br><br>" +
-        "Concentración necesaria = BTI / Volumen aplicado<br>" +
-        btiImb.toFixed(4)+" / "+volumenAplicado.toFixed(2)+
-        " = "+concentracion.toFixed(6)+" ml/ml<br><br>" +
-        "Producto a añadir en 5 L = 5000 × concentración<br>" +
-        "5000 × "+concentracion.toFixed(6)+
-        " = <strong>"+productoTotal.toFixed(2)+" ml</strong>";
+var imbornales = Math.floor(5000 / volumenAplicado);
+
+r.innerHTML =
+"<strong>Cálculo hidráulico:</strong><br><br>" +
+
+"BTI por imbornal = Dosis × 0.5 m²<br>" +
+dosis.toFixed(3) + " × 0.5 = " +
+btiImb.toFixed(4) + " ml<br><br>" +
+
+"Volumen aplicado por imbornal = (Caudal/60) × Tiempo<br>" +
+"(" + caudal + "/60) × " + tiempo + " = " +
+volumenAplicado.toFixed(2) + " ml<br><br>" +
+
+"Concentración necesaria = BTI / Volumen aplicado<br>" +
+btiImb.toFixed(4) + " / " +
+volumenAplicado.toFixed(2) + " = " +
+concentracion.toFixed(6) + " ml/ml<br><br>" +
+
+"<strong>Producto a añadir en 5 L:</strong><br>" +
+"5000 × " + concentracion.toFixed(6) +
+" = " + productoTotal.toFixed(2) + " ml<br><br>" +
+
+"<strong>Imbornales tratables con 5 L:</strong><br>" +
+imbornales + " unidades";
     }
 }
 
