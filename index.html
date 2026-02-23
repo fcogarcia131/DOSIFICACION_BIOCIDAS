@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Calculadora Profesional de Biocidas</title>
+
 <style>
 body{font-family:Arial;background:#f4f6f9;margin:0;padding:0}
-.container{max-width:600px;margin:50px auto;background:white;padding:30px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.1)}
+.container{max-width:650px;margin:50px auto;background:white;padding:30px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.1)}
 h2{margin-top:0}
 button{width:100%;padding:12px;margin-top:10px;border:none;border-radius:6px;background:#1976d2;color:white;font-weight:bold;cursor:pointer}
 button.secondary{background:#6c757d}
@@ -13,13 +14,14 @@ select,input{width:100%;padding:8px;margin-top:5px;margin-bottom:15px}
 .result{background:#f1f3f5;padding:15px;margin-top:20px;border-radius:6px;font-size:14px}
 </style>
 </head>
+
 <body>
 
 <div class="container" id="menu">
-<h2>Calculadora de Biocidas</h2>
+<h2>Calculadora Profesional</h2>
 <button onclick="mostrarDesinfectantes()">DESINFECCIÓN DE AGUA</button>
-<button onclick="mostrarInsecticidas()">DOSIFICACIÓN DE INSECTICIDAS</button>
-<button onclick="mostrarVectobac()">DOSIFICACIÓN DE VECTOBAC 12 AS</button>
+<button onclick="mostrarInsecticidas()">DOSIFICACIÓN INSECTICIDAS</button>
+<button onclick="mostrarVectobac()">DOSIFICACIÓN VECTOBAC 12 AS</button>
 </div>
 
 <div class="container" id="contenido" style="display:none;"></div>
@@ -31,92 +33,113 @@ document.getElementById("contenido").style.display="none";
 document.getElementById("menu").style.display="block";
 }
 
+////////////////////////////////////////////////////
+//////////// DESINFECTANTES ////////////////////////
+////////////////////////////////////////////////////
+
 function mostrarDesinfectantes(){
 document.getElementById("menu").style.display="none";
 document.getElementById("contenido").style.display="block";
+
 document.getElementById("contenido").innerHTML=`
 <h2>Desinfección de Agua</h2>
 
-<label>Producto:</label>
+<label>Seleccionar producto:</label>
 <select id="producto">
-<option value="48">Peróxido de hidrógeno 48%</option>
-<option value="35">Peróxido de hidrógeno 35%</option>
-<option value="12">Hipoclorito sódico 12%</option>
+<option value="576000">Peróxido Hidrógeno 48% (576000 ppm)</option>
+<option value="300000">Peróxido OX Aire Torres (300000 ppm)</option>
+<option value="187000">Hipoclorito 15% (187000 ppm)</option>
+<option value="162500">Hipoclorito 13% (162500 ppm)</option>
+<option value="150000">Hipoclorito 12% (150000 ppm)</option>
 </select>
 
-<label>Volumen de agua a tratar (L):</label>
-<input type="number" id="volumenAgua">
+<label>Volumen del circuito (L):</label>
+<input type="number" id="volCircuito">
 
-<label>Concentración deseada (ppm):</label>
-<input type="number" id="ppm">
+<label>Dosis deseada (ppm):</label>
+<input type="number" id="ppmDeseadas">
 
 <button onclick="calcularDesinfectante()">Calcular</button>
 <button class="secondary" onclick="volver()">Volver</button>
+
 <div class="result" id="resultado"></div>
 `;
 }
 
 function calcularDesinfectante(){
-var concProducto=parseFloat(document.getElementById("producto").value);
-var volumen=parseFloat(document.getElementById("volumenAgua").value);
-var ppm=parseFloat(document.getElementById("ppm").value);
 
-var mlProducto=(ppm*volumen)/(concProducto*10);
+var conc=parseFloat(document.getElementById("producto").value);
+var vol=parseFloat(document.getElementById("volCircuito").value);
+var ppm=parseFloat(document.getElementById("ppmDeseadas").value);
+
+var litros=(vol*ppm)/conc;
+var ml=litros*1000;
 
 document.getElementById("resultado").innerHTML=
-"<strong>Cálculo:</strong><br><br>"+
-"ml producto = (ppm × L agua) / (%producto ×10)<br>"+
-"("+ppm+" × "+volumen+") / ("+concProducto+" ×10) = "+
-mlProducto.toFixed(2)+" ml";
+"<strong>Fórmula:</strong><br>"+
+"Litros = (Vol circuito × ppm deseadas) / ppm producto<br><br>"+
+"("+vol+" × "+ppm+") / "+conc+" = "+litros.toFixed(4)+" L<br><br>"+
+"<strong>A añadir:</strong> "+ml.toFixed(2)+" ml";
 }
+
+////////////////////////////////////////////////////
+//////////// INSECTICIDAS //////////////////////////
+////////////////////////////////////////////////////
 
 function mostrarInsecticidas(){
 document.getElementById("menu").style.display="none";
 document.getElementById("contenido").style.display="block";
-document.getElementById("contenido").innerHTML=`
-<h2>Dosificación de Insecticidas</h2>
 
-<label>Dosis según etiqueta (% caldo):</label>
+document.getElementById("contenido").innerHTML=`
+<h2>Dosificación Insecticidas</h2>
+
+<label>Dosis etiqueta (% caldo):</label>
 <input type="number" id="porcentaje" step="0.01">
 
 <label>Volumen a preparar (L):</label>
-<input type="number" id="volumenCaldo">
+<input type="number" id="volCaldo">
 
 <button onclick="calcularInsecticida()">Calcular</button>
 <button class="secondary" onclick="volver()">Volver</button>
+
 <div class="result" id="resultado"></div>
 `;
 }
 
 function calcularInsecticida(){
-var pct=parseFloat(document.getElementById("porcentaje").value);
-var vol=parseFloat(document.getElementById("volumenCaldo").value);
 
-var mlProducto=(pct/100)*vol*1000;
+var pct=parseFloat(document.getElementById("porcentaje").value);
+var vol=parseFloat(document.getElementById("volCaldo").value);
+
+var ml=(pct/100)*vol*1000;
 
 document.getElementById("resultado").innerHTML=
-"<strong>Cálculo:</strong><br><br>"+
-"ml producto = (%/100) × L ×1000<br>"+
-"("+pct+"/100) × "+vol+" ×1000 = "+
-mlProducto.toFixed(2)+" ml";
+"<strong>Fórmula:</strong><br>"+
+"ml = (% /100) × L ×1000<br><br>"+
+"("+pct+"/100) × "+vol+" ×1000 = "+ml.toFixed(2)+" ml";
 }
+
+////////////////////////////////////////////////////
+//////////// VECTOBAC 12 AS ////////////////////////
+////////////////////////////////////////////////////
 
 function mostrarVectobac(){
 document.getElementById("menu").style.display="none";
 document.getElementById("contenido").style.display="block";
+
 document.getElementById("contenido").innerHTML=`
-<h2>Vectobac 12 AS</h2>
+<h2>Vectobac 12 AS – Imbornales</h2>
 
 <label>Nivel infestación:</label>
 <select id="nivel">
-<option value="baja">Baja</option>
-<option value="alta">Alta</option>
+<option value="0.25">Baja (0.25 L/ha)</option>
+<option value="1.5">Alta (1.5 L/ha)</option>
 </select>
 
 <label>Alta carga orgánica:</label>
 <select id="organica">
-<option value="no">No</option>
-<option value="si">Sí</option>
+<option value="1">No</option>
+<option value="1.5">Sí (+50%)</option>
 </select>
 
 <label>Volumen mochila a preparar (L):</label>
@@ -124,53 +147,36 @@ document.getElementById("contenido").innerHTML=`
 
 <button onclick="calcularVectobac()">Calcular</button>
 <button class="secondary" onclick="volver()">Volver</button>
+
 <div class="result" id="resultado"></div>
 `;
 }
 
 function calcularVectobac(){
 
-// DOSIS SEGÚN ETIQUETA
-var nivel=document.getElementById("nivel").value;
-var org=document.getElementById("organica").value;
+var dosis=parseFloat(document.getElementById("nivel").value);
+var factor=parseFloat(document.getElementById("organica").value);
 var volumen=parseFloat(document.getElementById("volMochila").value);
 
-var dosis;
-if(nivel=="baja") dosis=0.25;
-if(nivel=="alta") dosis=1.5;
-if(org=="si") dosis=dosis*1.5;
+dosis=dosis*factor;
 
-// SUPERFICIE IMBORNAL
-var superficie=0.5;
+var superficie=0.5; // m2
+var mlImbornal=(dosis/10000)*superficie*1000;
 
-// BTI POR IMBORNAL
-var litrosPorHa=dosis;
-var mlPorImbornal=(litrosPorHa/10000)*superficie*1000;
+var caudalSeg=10; // 600 ml/min
+var tiempo=3;
+var volumenAplicado=caudalSeg*tiempo;
 
-// CAUDAL ESTANDAR IK 600 ml/min
-var mlSeg=600/60;
-
-// TIEMPO FIJO 3 SEG
-var volumenAplicado=mlSeg*3;
-
-// CONCENTRACION NECESARIA
-var concentracion=mlPorImbornal/volumenAplicado;
-
-// PRODUCTO TOTAL EN MOCHILA
+var concentracion=mlImbornal/volumenAplicado;
 var productoTotal=volumen*1000*concentracion;
 
-// IMBORNALES TRATABLES
 var imbornales=Math.floor((volumen*1000)/volumenAplicado);
 
 document.getElementById("resultado").innerHTML=
-"<strong>Dosis etiqueta aplicada:</strong> "+dosis.toFixed(2)+" L/ha<br><br>"+
-"BTI por imbornal = (L/ha ÷10000) ×0.5 m² ×1000<br>"+
-mlPorImbornal.toFixed(4)+" ml<br><br>"+
-"Volumen aplicado por imbornal = 10 ml/seg ×3 seg = 30 ml<br><br>"+
-"Concentración necesaria = "+mlPorImbornal.toFixed(4)+" / 30 = "+
-concentracion.toFixed(6)+" ml/ml<br><br>"+
-"<strong>Producto a añadir:</strong> "+
-productoTotal.toFixed(2)+" ml en "+volumen+" L<br><br>"+
+"<strong>Dosis aplicada:</strong> "+dosis.toFixed(2)+" L/ha<br><br>"+
+"BTI por imbornal = "+mlImbornal.toFixed(4)+" ml<br>"+
+"Volumen aplicado = 30 ml<br><br>"+
+"<strong>Producto a añadir:</strong> "+productoTotal.toFixed(2)+" ml<br><br>"+
 "<strong>Imbornales tratables:</strong> "+imbornales;
 }
 
