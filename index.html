@@ -6,11 +6,11 @@
 <title>Calculadora Profesional de Biocidas</title>
 
 <style>
+*{box-sizing:border-box;}
 
 html, body {
 margin:0;
 padding:0;
-width:100%;
 font-family: Arial, sans-serif;
 background:#f4f6f9;
 }
@@ -62,13 +62,13 @@ margin-top:20px;
 border-radius:10px;
 font-size:17px;
 line-height:1.6;
+word-wrap:break-word;
 }
 
 label{
 font-weight:bold;
 font-size:16px;
 }
-
 </style>
 </head>
 
@@ -85,12 +85,14 @@ font-size:16px;
 
 <script>
 
-// tu JS original sin cambios
-
 function volver(){
 document.getElementById("contenido").style.display="none";
 document.getElementById("menu").style.display="block";
 }
+
+////////////////////////////////////////////////////
+//////////////// DESINFECCIÓN AGUA /////////////////
+////////////////////////////////////////////////////
 
 function agua(){
 document.getElementById("menu").style.display="none";
@@ -127,8 +129,14 @@ let conc=parseFloat(document.getElementById("conc").value);
 let resultado=(vol*ppm)/conc;
 
 document.getElementById("res").innerHTML=
-"<strong>Producto a añadir:</strong><br>"+resultado.toFixed(3)+" L";
+"<strong>Fórmula:</strong><br>(Vol × ppm deseadas) / ppm producto<br><br>"+
+"("+vol+" × "+ppm+") / "+conc+" = "+resultado.toFixed(3)+" L<br><br>"+
+"<strong>Producto a añadir:</strong> "+resultado.toFixed(3)+" L";
 }
+
+////////////////////////////////////////////////////
+//////////////// INSECTICIDAS //////////////////////
+////////////////////////////////////////////////////
 
 function insecticidas(){
 document.getElementById("menu").style.display="none";
@@ -155,14 +163,124 @@ let vol=parseFloat(document.getElementById("volCaldo").value);
 let producto=(p/100)*vol;
 
 document.getElementById("res").innerHTML=
-"<strong>Producto a añadir:</strong><br>"+producto.toFixed(3)+" L";
+"<strong>Fórmula:</strong><br>( % etiqueta /100 ) × volumen<br><br>"+
+"("+p+"/100) × "+vol+" = "+producto.toFixed(3)+" L<br><br>"+
+"<strong>Producto a añadir:</strong> "+producto.toFixed(3)+" L";
 }
 
+////////////////////////////////////////////////////
+//////////////// VECTOBAC COMPLETO //////////////////
+////////////////////////////////////////////////////
+
 function vectobac(){
-alert("Vectobac funcionalidad igual que antes");
+document.getElementById("menu").style.display="none";
+document.getElementById("contenido").style.display="block";
+
+document.getElementById("contenido").innerHTML=`
+<h2>Vectobac 12 AS</h2>
+
+<label>Tipo tratamiento:</label>
+<select id="tipo" onchange="mostrarVect()">
+<option value="superficie">Grandes superficies</option>
+<option value="imbornal">Imbornales municipales</option>
+</select>
+
+<div id="opVect"></div>
+
+<button onclick="calcVect()">Calcular</button>
+<button class="secondary" onclick="volver()">Volver</button>
+<div class="result" id="resVect"></div>
+`;
+
+mostrarVect();
+}
+
+function mostrarVect(){
+let tipo=document.getElementById("tipo").value;
+
+let html=`
+<label>Dosis etiqueta (L/ha):</label>
+<input type="number" id="dosis">
+
+<label>Alta carga orgánica (+50% si aplica):</label>
+<select id="factor">
+<option value="1">No</option>
+<option value="1.5">Sí</option>
+</select>
+`;
+
+if(tipo==="superficie"){
+html+=`
+<label>Superficie (m²):</label>
+<input type="number" id="sup">
+
+<label>Volumen aplicación (L/ha):</label>
+<select id="volHa">
+<option value="300">300</option>
+<option value="600">600</option>
+<option value="900">900</option>
+</select>
+`;
+}
+
+if(tipo==="imbornal"){
+html+=`
+<label>Volumen mochila a preparar (L):</label>
+<input type="number" id="volMochila">
+`;
+}
+
+document.getElementById("opVect").innerHTML=html;
+}
+
+function calcVect(){
+
+let tipo=document.getElementById("tipo").value;
+let dosis=parseFloat(document.getElementById("dosis").value);
+let factor=parseFloat(document.getElementById("factor").value);
+dosis=dosis*factor;
+
+if(tipo==="superficie"){
+
+let sup=parseFloat(document.getElementById("sup").value);
+let volHa=parseFloat(document.getElementById("volHa").value);
+
+let producto=(dosis/10000)*sup;
+let caldo=(volHa/10000)*sup;
+
+document.getElementById("resVect").innerHTML=
+"<strong>GRANDES SUPERFICIES</strong><br><br>"+
+"Producto total = "+producto.toFixed(3)+" L<br>"+
+"Caldo necesario = "+caldo.toFixed(2)+" L";
+}
+
+if(tipo==="imbornal"){
+
+let volumen=parseFloat(document.getElementById("volMochila").value);
+
+let superficieImb=0.5;
+let mlImb=(dosis/10000)*superficieImb*1000;
+
+let tiempo=3;
+let caudal=10;
+let volumenAplicado=tiempo*caudal;
+
+let concentracion=mlImb/volumenAplicado;
+let productoTotal=volumen*1000*concentracion;
+let imbornales=Math.floor((volumen*1000)/volumenAplicado);
+
+document.getElementById("resVect").innerHTML=
+"<strong>IMBORNALES MUNICIPALES</strong><br><br>"+
+"Tiempo pulverización fijo: 3 s<br>"+
+"Caudal estimado: 10 ml/s<br><br>"+
+"BTI por imbornal = "+mlImb.toFixed(4)+" ml<br>"+
+"Volumen aplicado por imbornal = 30 ml<br><br>"+
+"Producto a añadir a mochila = "+productoTotal.toFixed(2)+" ml<br>"+
+"Imbornales tratables = "+imbornales;
+}
+
 }
 
 </script>
-
 </body>
 </html>
