@@ -6,68 +6,285 @@
 <title>Calculadora Profesional de Biocidas</title>
 
 <style>
-*{box-sizing:border-box;}
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap');
+
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #21262d;
+  --border: #30363d;
+  --accent: #58a6ff;
+  --accent2: #3fb950;
+  --accent3: #f78166;
+  --accent4: #d29922;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-margin:0;
-padding:0;
-font-family: Arial, sans-serif;
-background:#f4f6f9;
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
 }
 
-.container{
-width:100%;
-max-width:100%;
-padding:20px;
-background:white;
-min-height:100vh;
+.container {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 28px 20px 40px;
+  min-height: 100vh;
 }
 
-h2{
-font-size:24px;
-margin-bottom:20px;
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
 }
 
-button{
-width:100%;
-padding:18px;
-margin-top:15px;
-border:none;
-border-radius:10px;
-background:#1976d2;
-color:white;
-font-weight:bold;
-font-size:18px;
-cursor:pointer;
+.header .icon {
+  font-size: 36px;
+  margin-bottom: 8px;
 }
 
-button.secondary{
-background:#6c757d;
+h1 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text);
 }
 
-select,input{
-width:100%;
-padding:16px;
-font-size:18px;
-margin-top:8px;
-margin-bottom:18px;
-border-radius:8px;
-border:1px solid #ccc;
+h2 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.result{
-background:#f1f3f5;
-padding:18px;
-margin-top:20px;
-border-radius:10px;
-font-size:17px;
-line-height:1.6;
-word-wrap:break-word;
+.subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
 }
 
-label{
-font-weight:bold;
-font-size:16px;
+/* MENU BUTTONS */
+.menu-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.menu-btn {
+  width: 100%;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-btn::after {
+  content: '→';
+  position: absolute;
+  right: 20px;
+  font-size: 18px;
+  opacity: 0.4;
+  transition: all 0.2s;
+}
+
+.menu-btn:hover {
+  background: var(--surface2);
+  border-color: var(--accent);
+  transform: translateX(3px);
+}
+
+.menu-btn:hover::after {
+  opacity: 1;
+  right: 14px;
+}
+
+.menu-btn .btn-icon { font-size: 22px; }
+
+.btn-agua { border-left: 4px solid var(--accent); }
+.btn-agua:hover { border-left-color: var(--accent); }
+
+.btn-insec { border-left: 4px solid var(--accent2); }
+.btn-insec:hover { border-left-color: var(--accent2); }
+
+.btn-vect { border-left: 4px solid var(--accent4); }
+.btn-vect:hover { border-left-color: var(--accent4); }
+
+.btn-meta { border-left: 4px solid var(--accent3); }
+.btn-meta:hover { border-left-color: var(--accent3); }
+
+/* FORM ELEMENTS */
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+  margin-top: 18px;
+}
+
+label:first-child { margin-top: 0; }
+
+select, input {
+  width: 100%;
+  padding: 13px 14px;
+  font-size: 16px;
+  font-family: 'Source Sans 3', sans-serif;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+select:focus, input:focus {
+  border-color: var(--accent);
+}
+
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* ACTION BUTTONS */
+.btn-calc {
+  width: 100%;
+  padding: 16px;
+  margin-top: 22px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #0d1117;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-calc:hover { opacity: 0.88; }
+.btn-calc:active { transform: scale(0.98); }
+
+.btn-back {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+/* RESULT BOX */
+.result {
+  margin-top: 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  font-size: 15px;
+  line-height: 1.7;
+  display: none;
+}
+
+.result.show { display: block; }
+
+.result-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.result-value {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent);
+  display: block;
+  margin: 10px 0 6px;
+}
+
+.result-value.orange { color: var(--accent3); }
+
+.formula-box {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: monospace;
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 14px 0;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--surface2);
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+/* PAGE TRANSITION */
+#menu { animation: fadeIn 0.3s ease; }
+#contenido { animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
@@ -75,19 +292,48 @@ font-size:16px;
 <body>
 
 <div class="container" id="menu">
-<h2>Calculadora Profesional</h2>
-<button onclick="agua()">DESINFECCIÓN DE AGUA</button>
-<button onclick="insecticidas()">DOSIFICACIÓN INSECTICIDAS</button>
-<button onclick="vectobac()">DOSIFICACIÓN VECTOBAC 12 AS</button>
+  <div class="header">
+    <div class="icon">⚗️</div>
+    <h1>CALCULADORA BIOCIDAS</h1>
+    <div class="subtitle">Herramienta de dosificación profesional</div>
+  </div>
+
+  <div class="menu-grid">
+    <button class="menu-btn btn-agua" onclick="agua()">
+      <span class="btn-icon">💧</span> DESINFECCIÓN DE AGUA
+    </button>
+    <button class="menu-btn btn-insec" onclick="insecticidas()">
+      <span class="btn-icon">🪲</span> DOSIFICACIÓN INSECTICIDAS
+    </button>
+    <button class="menu-btn btn-vect" onclick="vectobac()">
+      <span class="btn-icon">🦟</span> VECTOBAC 12 AS
+    </button>
+    <button class="menu-btn btn-meta" onclick="metabisulfito()">
+      <span class="btn-icon">🧪</span> NEUTRALIZANTE METABISULFITO
+    </button>
+  </div>
 </div>
 
 <div class="container" id="contenido" style="display:none;"></div>
 
 <script>
 
+// Estado global para capturar datos de la última desinfección
+const session = {
+  tipoDesinf: null,   // 'peroxido' o 'hipoclorito'
+  ppm: null,
+  volLitros: null,    // en litros (tal como se introduce en Desinfección de Agua)
+  nombreProducto: null
+};
+
 function volver(){
-document.getElementById("contenido").style.display="none";
-document.getElementById("menu").style.display="block";
+  document.getElementById("contenido").style.display="none";
+  document.getElementById("menu").style.display="block";
+}
+
+function showResult(id){
+  const el = document.getElementById(id);
+  el.classList.add("show");
 }
 
 ////////////////////////////////////////////////////
@@ -95,43 +341,65 @@ document.getElementById("menu").style.display="block";
 ////////////////////////////////////////////////////
 
 function agua(){
-document.getElementById("menu").style.display="none";
-document.getElementById("contenido").style.display="block";
+  document.getElementById("menu").style.display="none";
+  document.getElementById("contenido").style.display="block";
 
-document.getElementById("contenido").innerHTML=`
-<h2>Desinfección de Agua</h2>
+  document.getElementById("contenido").innerHTML=`
+    <h2>💧 Desinfección de Agua</h2>
 
-<label>Seleccionar producto:</label>
-<select id="conc">
-<option value="576000">Peróxido OX 48% (576000 ppm)</option>
-<option value="300000">Peróxido OX Aire Torres 25% (300000 ppm)</option>
-<option value="187000">Hipoclorito 15% (187000 ppm)</option>
-<option value="162500">Hipoclorito 13% (162500 ppm)</option>
-<option value="150000">Hipoclorito 12% (150000 ppm)</option>
-</select>
+    <label>Seleccionar producto</label>
+    <select id="conc">
+      <option value="576000">Peróxido OX 48% (576.000 ppm)</option>
+      <option value="300000">Peróxido OX Aire Torres 25% (300.000 ppm)</option>
+      <option value="187000">Hipoclorito 15% (187.000 ppm)</option>
+      <option value="162500">Hipoclorito 13% (162.500 ppm)</option>
+      <option value="150000">Hipoclorito 12% (150.000 ppm)</option>
+    </select>
 
-<label>Volumen circuito (L):</label>
-<input type="number" id="vol">
+    <label>Volumen circuito (L)</label>
+    <input type="number" id="vol" placeholder="Ej: 10000">
 
-<label>Dosis deseada (ppm):</label>
-<input type="number" id="ppm">
+    <label>Dosis deseada (ppm)</label>
+    <input type="number" id="ppm" placeholder="Ej: 50">
 
-<button onclick="calcAgua()">Calcular</button>
-<button class="secondary" onclick="volver()">Volver</button>
-<div class="result" id="res"></div>
-`;
+    <button class="btn-calc" onclick="calcAgua()">CALCULAR</button>
+    <button class="btn-back" onclick="volver()">← Volver al menú</button>
+
+    <div class="result" id="res">
+      <div class="result-title">Resultado</div>
+      <div class="formula-box" id="res-formula"></div>
+      <div class="tag">Producto a añadir</div>
+      <span class="result-value" id="res-valor"></span>
+    </div>
+  `;
 }
 
 function calcAgua(){
-let vol=parseFloat(document.getElementById("vol").value);
-let ppm=parseFloat(document.getElementById("ppm").value);
-let conc=parseFloat(document.getElementById("conc").value);
-let resultado=(vol*ppm)/conc;
+  let vol = parseFloat(document.getElementById("vol").value);
+  let ppm = parseFloat(document.getElementById("ppm").value);
+  let conc = parseFloat(document.getElementById("conc").value);
+  let resultado = (vol * ppm) / conc;
 
-document.getElementById("res").innerHTML=
-"<strong>Fórmula:</strong><br>(Vol × ppm deseadas) / ppm producto<br><br>"+
-"("+vol+" × "+ppm+") / "+conc+" = "+resultado.toFixed(3)+" L<br><br>"+
-"<strong>Producto a añadir:</strong> "+resultado.toFixed(3)+" L";
+  // Guardar en sesión para Metabisulfito
+  const selectEl = document.getElementById("conc");
+  const nombreProducto = selectEl.options[selectEl.selectedIndex].text;
+  session.ppm = ppm;
+  session.volLitros = vol;
+  session.nombreProducto = nombreProducto;
+  // Determinar tipo según concentración seleccionada
+  const concVal = conc;
+  if(concVal === 576000 || concVal === 300000){
+    session.tipoDesinf = 'peroxido';
+  } else {
+    session.tipoDesinf = 'hipoclorito';
+  }
+
+  document.getElementById("res-formula").innerHTML =
+    "Fórmula: (Vol × ppm deseadas) / ppm producto<br>" +
+    "("+vol+" × "+ppm+") / "+conc;
+
+  document.getElementById("res-valor").textContent = resultado.toFixed(3) + " L";
+  showResult("res");
 }
 
 ////////////////////////////////////////////////////
@@ -139,33 +407,41 @@ document.getElementById("res").innerHTML=
 ////////////////////////////////////////////////////
 
 function insecticidas(){
-document.getElementById("menu").style.display="none";
-document.getElementById("contenido").style.display="block";
+  document.getElementById("menu").style.display="none";
+  document.getElementById("contenido").style.display="block";
 
-document.getElementById("contenido").innerHTML=`
-<h2>Dosificación Insecticidas</h2>
+  document.getElementById("contenido").innerHTML=`
+    <h2>🪲 Dosificación Insecticidas</h2>
 
-<label>Dosis etiqueta (%):</label>
-<input type="number" id="porcentaje">
+    <label>Dosis etiqueta (%)</label>
+    <input type="number" id="porcentaje" placeholder="Ej: 0.5">
 
-<label>Volumen caldo a preparar (L):</label>
-<input type="number" id="volCaldo">
+    <label>Volumen caldo a preparar (L)</label>
+    <input type="number" id="volCaldo" placeholder="Ej: 100">
 
-<button onclick="calcInsec()">Calcular</button>
-<button class="secondary" onclick="volver()">Volver</button>
-<div class="result" id="res"></div>
-`;
+    <button class="btn-calc" onclick="calcInsec()">CALCULAR</button>
+    <button class="btn-back" onclick="volver()">← Volver al menú</button>
+
+    <div class="result" id="res">
+      <div class="result-title">Resultado</div>
+      <div class="formula-box" id="res-formula"></div>
+      <div class="tag">Producto a añadir</div>
+      <span class="result-value" id="res-valor"></span>
+    </div>
+  `;
 }
 
 function calcInsec(){
-let p=parseFloat(document.getElementById("porcentaje").value);
-let vol=parseFloat(document.getElementById("volCaldo").value);
-let producto=(p/100)*vol;
+  let p = parseFloat(document.getElementById("porcentaje").value);
+  let vol = parseFloat(document.getElementById("volCaldo").value);
+  let producto = (p / 100) * vol;
 
-document.getElementById("res").innerHTML=
-"<strong>Fórmula:</strong><br>( % etiqueta /100 ) × volumen<br><br>"+
-"("+p+"/100) × "+vol+" = "+producto.toFixed(3)+" L<br><br>"+
-"<strong>Producto a añadir:</strong> "+producto.toFixed(3)+" L";
+  document.getElementById("res-formula").innerHTML =
+    "Fórmula: (% etiqueta / 100) × volumen caldo<br>" +
+    "("+p+" / 100) × "+vol;
+
+  document.getElementById("res-valor").textContent = producto.toFixed(3) + " L";
+  showResult("res");
 }
 
 ////////////////////////////////////////////////////
@@ -173,112 +449,247 @@ document.getElementById("res").innerHTML=
 ////////////////////////////////////////////////////
 
 function vectobac(){
-document.getElementById("menu").style.display="none";
-document.getElementById("contenido").style.display="block";
+  document.getElementById("menu").style.display="none";
+  document.getElementById("contenido").style.display="block";
 
-document.getElementById("contenido").innerHTML=`
-<h2>Vectobac 12 AS</h2>
+  document.getElementById("contenido").innerHTML=`
+    <h2>🦟 Vectobac 12 AS</h2>
 
-<label>Tipo tratamiento:</label>
-<select id="tipo" onchange="mostrarVect()">
-<option value="superficie">Grandes superficies</option>
-<option value="imbornal">Imbornales municipales</option>
-</select>
+    <label>Tipo de tratamiento</label>
+    <select id="tipo" onchange="mostrarVect()">
+      <option value="superficie">Grandes superficies</option>
+      <option value="imbornal">Imbornales municipales</option>
+    </select>
 
-<div id="opVect"></div>
+    <div id="opVect"></div>
 
-<button onclick="calcVect()">Calcular</button>
-<button class="secondary" onclick="volver()">Volver</button>
-<div class="result" id="resVect"></div>
-`;
+    <button class="btn-calc" onclick="calcVect()">CALCULAR</button>
+    <button class="btn-back" onclick="volver()">← Volver al menú</button>
+    <div class="result" id="resVect"></div>
+  `;
 
-mostrarVect();
+  mostrarVect();
 }
 
 function mostrarVect(){
-let tipo=document.getElementById("tipo").value;
+  let tipo = document.getElementById("tipo").value;
 
-let html=`
-<label>Dosis etiqueta (L/ha):</label>
-<input type="number" id="dosis">
+  let html = `
+    <label>Dosis etiqueta (L/ha)</label>
+    <input type="number" id="dosis" placeholder="Ej: 3">
 
-<label>Alta carga orgánica (+50% si aplica):</label>
-<select id="factor">
-<option value="1">No</option>
-<option value="1.5">Sí</option>
-</select>
-`;
+    <label>Alta carga orgánica (+50% si aplica)</label>
+    <select id="factor">
+      <option value="1">No</option>
+      <option value="1.5">Sí (+50%)</option>
+    </select>
+  `;
 
-if(tipo==="superficie"){
-html+=`
-<label>Superficie (m²):</label>
-<input type="number" id="sup">
+  if(tipo === "superficie"){
+    html += `
+      <label>Superficie (m²)</label>
+      <input type="number" id="sup" placeholder="Ej: 5000">
 
-<label>Volumen aplicación (L/ha):</label>
-<select id="volHa">
-<option value="300">300</option>
-<option value="600">600</option>
-<option value="900">900</option>
-</select>
-`;
-}
+      <label>Volumen aplicación (L/ha)</label>
+      <select id="volHa">
+        <option value="300">300 L/ha</option>
+        <option value="600">600 L/ha</option>
+        <option value="900">900 L/ha</option>
+      </select>
+    `;
+  }
 
-if(tipo==="imbornal"){
-html+=`
-<label>Volumen mochila a preparar (L):</label>
-<input type="number" id="volMochila">
-`;
-}
+  if(tipo === "imbornal"){
+    html += `
+      <label>Volumen mochila a preparar (L)</label>
+      <input type="number" id="volMochila" placeholder="Ej: 15">
+    `;
+  }
 
-document.getElementById("opVect").innerHTML=html;
+  document.getElementById("opVect").innerHTML = html;
 }
 
 function calcVect(){
+  let tipo = document.getElementById("tipo").value;
+  let dosis = parseFloat(document.getElementById("dosis").value);
+  let factor = parseFloat(document.getElementById("factor").value);
+  dosis = dosis * factor;
 
-let tipo=document.getElementById("tipo").value;
-let dosis=parseFloat(document.getElementById("dosis").value);
-let factor=parseFloat(document.getElementById("factor").value);
-dosis=dosis*factor;
+  const res = document.getElementById("resVect");
 
-if(tipo==="superficie"){
+  if(tipo === "superficie"){
+    let sup = parseFloat(document.getElementById("sup").value);
+    let volHa = parseFloat(document.getElementById("volHa").value);
+    let producto = (dosis / 10000) * sup;
+    let caldo = (volHa / 10000) * sup;
 
-let sup=parseFloat(document.getElementById("sup").value);
-let volHa=parseFloat(document.getElementById("volHa").value);
+    res.innerHTML = `
+      <div class="result-title">Grandes Superficies</div>
+      <div class="tag">Producto total</div>
+      <span class="result-value">${producto.toFixed(3)} L</span>
+      <hr class="divider">
+      <div class="tag">Caldo necesario</div>
+      <span class="result-value">${caldo.toFixed(2)} L</span>
+    `;
+  }
 
-let producto=(dosis/10000)*sup;
-let caldo=(volHa/10000)*sup;
+  if(tipo === "imbornal"){
+    let volumen = parseFloat(document.getElementById("volMochila").value);
+    let superficieImb = 0.5;
+    let mlImb = (dosis / 10000) * superficieImb * 1000;
+    let tiempo = 3;
+    let caudal = 10;
+    let volumenAplicado = tiempo * caudal;
+    let concentracion = mlImb / volumenAplicado;
+    let productoTotal = volumen * 1000 * concentracion;
+    let imbornales = Math.floor((volumen * 1000) / volumenAplicado);
 
-document.getElementById("resVect").innerHTML=
-"<strong>GRANDES SUPERFICIES</strong><br><br>"+
-"Producto total = "+producto.toFixed(3)+" L<br>"+
-"Caldo necesario = "+caldo.toFixed(2)+" L";
+    res.innerHTML = `
+      <div class="result-title">Imbornales Municipales</div>
+      <div class="formula-box">
+        Tiempo pulverización: 3 s · Caudal: 10 ml/s<br>
+        BTI por imbornal = ${mlImb.toFixed(4)} ml<br>
+        Volumen aplicado por imbornal = 30 ml
+      </div>
+      <div class="tag">Producto a añadir a mochila</div>
+      <span class="result-value">${productoTotal.toFixed(2)} ml</span>
+      <hr class="divider">
+      <div class="tag">Imbornales tratables</div>
+      <span class="result-value">${imbornales}</span>
+    `;
+  }
+
+  res.classList.add("show");
 }
 
-if(tipo==="imbornal"){
+////////////////////////////////////////////////////
+/////////////// NEUTRALIZANTE METABISULFITO /////////
+////////////////////////////////////////////////////
 
-let volumen=parseFloat(document.getElementById("volMochila").value);
+function metabisulfito(){
+  document.getElementById("menu").style.display="none";
+  document.getElementById("contenido").style.display="block";
 
-let superficieImb=0.5;
-let mlImb=(dosis/10000)*superficieImb*1000;
+  // Determinar si hay datos de sesión previos
+  const hayDatos = session.tipoDesinf && session.ppm && session.volLitros;
+  const volM3 = hayDatos ? (session.volLitros / 1000) : '';
+  const ppmVal = hayDatos ? session.ppm : '';
+  const tipoVal = hayDatos ? session.tipoDesinf : 'peroxido';
+  const nombreProd = hayDatos ? session.nombreProducto : '';
 
-let tiempo=3;
-let caudal=10;
-let volumenAplicado=tiempo*caudal;
+  const alertaBanner = hayDatos ? `
+    <div style="
+      background: #1a2e1a;
+      border: 1px solid var(--accent2);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--accent2);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    ">
+      ✅ <strong>Datos capturados de Desinfección de Agua:</strong><br>
+      Producto: ${nombreProd}<br>
+      Dosis: ${ppmVal} ppm · Volumen: ${session.volLitros} L (${volM3} m³)
+    </div>
+  ` : `
+    <div style="
+      background: #2e1a0e;
+      border: 1px solid var(--accent4);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--accent4);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    ">
+      ⚠️ No hay datos previos de desinfección.<br>Introduce los valores manualmente.
+    </div>
+  `;
 
-let concentracion=mlImb/volumenAplicado;
-let productoTotal=volumen*1000*concentracion;
-let imbornales=Math.floor((volumen*1000)/volumenAplicado);
+  document.getElementById("contenido").innerHTML=`
+    <h2>🧪 Neutralizante Metabisulfito</h2>
 
-document.getElementById("resVect").innerHTML=
-"<strong>IMBORNALES MUNICIPALES</strong><br><br>"+
-"Tiempo pulverización fijo: 3 s<br>"+
-"Caudal estimado: 10 ml/s<br><br>"+
-"BTI por imbornal = "+mlImb.toFixed(4)+" ml<br>"+
-"Volumen aplicado por imbornal = 30 ml<br><br>"+
-"Producto a añadir a mochila = "+productoTotal.toFixed(2)+" ml<br>"+
-"Imbornales tratables = "+imbornales;
+    ${alertaBanner}
+
+    <label>Desinfectante utilizado</label>
+    <select id="tipoDesinf" onchange="actualizarFormulaInfo()" ${hayDatos ? 'disabled' : ''}>
+      <option value="peroxido" ${tipoVal==='peroxido'?'selected':''}>Peróxido (OX 48% / OX 25%)</option>
+      <option value="hipoclorito" ${tipoVal==='hipoclorito'?'selected':''}>Hipoclorito (15% / 13% / 12%)</option>
+    </select>
+
+    <div id="formulaInfo" style="
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: monospace;
+      margin-top: 10px;
+      margin-bottom: 6px;
+      line-height: 1.6;
+    "></div>
+
+    <label>PPM del desinfectante aplicado</label>
+    <input type="number" id="ppmDesinf" placeholder="Ej: 50" value="${ppmVal}" ${hayDatos ? 'readonly style="opacity:0.6"' : ''}>
+
+    <label>Volumen del circuito (m³)</label>
+    <input type="number" id="volCircuito" placeholder="Ej: 10" value="${volM3}" ${hayDatos ? 'readonly style="opacity:0.6"' : ''}>
+
+    ${hayDatos ? `<button class="btn-back" onclick="limpiarSesionMeta()" style="margin-top:12px;border-color:#f78166;color:#f78166;">✏️ Editar valores manualmente</button>` : ''}
+
+    <button class="btn-calc" onclick="calcMeta()">CALCULAR</button>
+    <button class="btn-back" onclick="volver()">← Volver al menú</button>
+
+    <div class="result" id="resMeta">
+      <div class="result-title">Volumen de Metabisulfito a añadir</div>
+      <div class="formula-box" id="meta-formula"></div>
+      <div class="tag">Metabisulfito necesario</div>
+      <span class="result-value orange" id="meta-valor"></span>
+    </div>
+  `;
+
+  actualizarFormulaInfo();
+
+  // Si hay datos, calcular automáticamente
+  if(hayDatos){ calcMeta(); }
 }
 
+function limpiarSesionMeta(){
+  session.tipoDesinf = null;
+  session.ppm = null;
+  session.volLitros = null;
+  session.nombreProducto = null;
+  metabisulfito();
+}
+
+function actualizarFormulaInfo(){
+  const tipo = document.getElementById("tipoDesinf").value;
+  const infoEl = document.getElementById("formulaInfo");
+
+  if(tipo === "peroxido"){
+    infoEl.innerHTML = "Fórmula peróxido:<br>Vol (ml) = PPM × Volumen circuito (m³) × 6";
+  } else {
+    infoEl.innerHTML = "Fórmula hipoclorito:<br>Vol (ml) = PPM × Volumen circuito (m³) × 4";
+  }
+}
+
+function calcMeta(){
+  const tipo = document.getElementById("tipoDesinf").value;
+  const ppm = parseFloat(document.getElementById("ppmDesinf").value);
+  const vol = parseFloat(document.getElementById("volCircuito").value);
+
+  const factor = tipo === "peroxido" ? 6 : 4;
+  const resultado = ppm * vol * factor;
+
+  const nombreDesinf = tipo === "peroxido" ? "Peróxido" : "Hipoclorito";
+
+  document.getElementById("meta-formula").innerHTML =
+    `Desinfectante: ${nombreDesinf} · Factor: ${factor}<br>` +
+    `${ppm} ppm × ${vol} m³ × ${factor}`;
+
+  document.getElementById("meta-valor").textContent = resultado.toFixed(2) + " ml";
+  showResult("resMeta");
 }
 
 </script>
